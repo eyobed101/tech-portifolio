@@ -115,8 +115,18 @@ exports.createSchemaCustomization = ({ actions }) => {
       external: String
       tech: String
       cover: String
-      content: String
+      company: String
       showInProjects: Boolean
+      content: String
+    }
+
+    type DatabaseFeatured implements Node {
+      title: String
+      cover: String
+      github: String
+      external: String
+      tech: String
+      content: String
     }
 
     type DatabaseJob implements Node {
@@ -130,12 +140,13 @@ exports.createSchemaCustomization = ({ actions }) => {
 
     type DatabasePost implements Node {
       title: String
+      description: String
       date: Date @dateformat
+      draft: Boolean
       slug: String
       tags: String
       content: String
       cover: String
-      draft: Boolean
     }
   `;
   createTypes(typeDefs);
