@@ -8,6 +8,7 @@ import { Icon } from '@components/icons';
 import { usePrefersReducedMotion } from '@hooks';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
+import ThreeDTilt from '../ThreeDTilt';
 
 const StyledProjectsGrid = styled.ul`
   ${({ theme }) => theme.mixins.resetList};
@@ -357,49 +358,51 @@ const Featured = () => {
             const techList = JSON.parse(tech);
 
             return (
-              <StyledProject key={i} ref={el => (revealProjects.current[i] = el)}>
-                <div className="project-content">
-                  <div>
-                    <p className="project-overline">Featured Project</p>
+              <ThreeDTilt key={i} maxTilt={5}>
+                <StyledProject ref={el => (revealProjects.current[i] = el)}>
+                  <div className="project-content">
+                    <div>
+                      <p className="project-overline">Featured Project</p>
 
-                    <h3 className="project-title">
-                      <a href={external}>{title}</a>
-                    </h3>
+                      <h3 className="project-title">
+                        <a href={external}>{title}</a>
+                      </h3>
 
-                    <div
-                      className="project-description"
-                      dangerouslySetInnerHTML={{ __html: content }}
-                    />
+                      <div
+                        className="project-description"
+                        dangerouslySetInnerHTML={{ __html: content }}
+                      />
 
-                    {techList.length && (
-                      <ul className="project-tech-list">
-                        {techList.map((t, i) => (
-                          <li key={i}>{t}</li>
-                        ))}
-                      </ul>
-                    )}
-
-                    <div className="project-links">
-                      {github && (
-                        <a href={github} aria-label="GitHub Link">
-                          <Icon name="GitHub" />
-                        </a>
+                      {techList.length && (
+                        <ul className="project-tech-list">
+                          {techList.map((t, i) => (
+                            <li key={i}>{t}</li>
+                          ))}
+                        </ul>
                       )}
-                      {external && (
-                        <a href={external} aria-label="External Link" className="external">
-                          <Icon name="External" />
-                        </a>
-                      )}
+
+                      <div className="project-links">
+                        {github && (
+                          <a href={github} aria-label="GitHub Link">
+                            <Icon name="GitHub" />
+                          </a>
+                        )}
+                        {external && (
+                          <a href={external} aria-label="External Link" className="external">
+                            <Icon name="External" />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="project-image">
-                  <a href={external ? external : github ? github : '#'}>
-                    <img src={cover} alt={title} className="img" />
-                  </a>
-                </div>
-              </StyledProject>
+                  <div className="project-image">
+                    <a href={external ? external : github ? github : '#'}>
+                      <img src={cover} alt={title} className="img" />
+                    </a>
+                  </div>
+                </StyledProject>
+              </ThreeDTilt>
             );
           })}
       </StyledProjectsGrid>

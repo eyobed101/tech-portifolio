@@ -8,6 +8,7 @@ import { usePrefersReducedMotion } from '@hooks';
 import anime from 'animejs';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
+import ThreeDPrism from '../ThreeDPrism';
 
 // New continuous wave animation for text
 const waveAnimation = keyframes`
@@ -34,6 +35,26 @@ const StyledHeroSection = styled.section`
   height: 100vh;
   padding: 0;
   position: relative;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 700px;
+  }
+
+  .hero-3d {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
 
   @media (max-height: 700px) and (min-width: 700px), (max-width: 360px) {
     height: auto;
@@ -439,23 +460,37 @@ const Hero = () => {
   const items = [one, two, three, four, five, six, seven];
 
   return (
-    <StyledHeroSection>
-      {prefersReducedMotion ? (
-        <>
-          {items.map((item, i) => (
-            <div key={i}>{item}</div>
-          ))}
-        </>
-      ) : (
-        <TransitionGroup component={null}>
-          {isMounted &&
-            items.map((item, i) => (
-              <CSSTransition key={i} classNames="fadeup" timeout={loaderDelay} appear>
-                <div style={{ transitionDelay: `${i + 1}00ms` }}>{item}</div>
-              </CSSTransition>
+    <StyledHeroSection id="hero">
+      <div className="hero-content">
+        {prefersReducedMotion ? (
+          <>
+            {items.map((item, i) => (
+              <div key={i}>{item}</div>
             ))}
+          </>
+        ) : (
+          <TransitionGroup component={null}>
+            {isMounted &&
+              items.map((item, i) => (
+                <CSSTransition key={i} classNames="fadeup" timeout={loaderDelay} appear>
+                  <div style={{ transitionDelay: `${i + 1}00ms` }}>{item}</div>
+                </CSSTransition>
+              ))}
+          </TransitionGroup>
+        )}
+      </div>
+
+      <div className="hero-3d">
+        <TransitionGroup component={null}>
+          {isMounted && (
+            <CSSTransition classNames="fade" timeout={loaderDelay} appear>
+              <div style={{ transitionDelay: '700ms' }}>
+                <ThreeDPrism />
+              </div>
+            </CSSTransition>
+          )}
         </TransitionGroup>
-      )}
+      </div>
     </StyledHeroSection>
   );
 };

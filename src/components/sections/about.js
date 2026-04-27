@@ -7,6 +7,7 @@ import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
+import ThreeDBackground from '../ThreeDBackground';
 
 // ... (Styles remains same)
 
@@ -270,6 +271,7 @@ const About = () => {
 
   return (
     <StyledAboutSection id="about" ref={revealContainer}>
+      <ThreeDBackground />
       <h2 className="numbered-heading">{aboutTitle}</h2>
 
       <div className="inner">
