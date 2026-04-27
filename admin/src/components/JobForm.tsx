@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import DynamicListInput from './DynamicListInput';
 
@@ -57,9 +58,7 @@ export default function JobForm({ job, onSuccess, onCancel }: JobFormProps) {
             content: JSON.stringify(functions),
         };
 
-        const url = job?.id
-            ? `http://localhost:3001/api/jobs/${job.id}`
-            : 'http://localhost:3001/api/jobs';
+        const url = job?.id ? `${API_BASE_URL}/api/jobs/${job.id}` : `${API_BASE_URL}/api/jobs`;
         const method = job?.id ? 'PUT' : 'POST';
 
         try {

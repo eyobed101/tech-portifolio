@@ -22,11 +22,13 @@ exports.sourceNodes = async ({ actions, createNodeId, createContentDigest }) => 
     }
   };
 
-  const projects = await fetchData('http://localhost:3001/api/projects');
-  const featured = await fetchData('http://localhost:3001/api/featured');
-  const jobs = await fetchData('http://localhost:3001/api/jobs');
-  const posts = await fetchData('http://localhost:3001/api/posts');
-  const profile = await fetchData('http://localhost:3001/api/profile');
+  const API_URL = process.env.GATSBY_API_URL || 'http://localhost:3001';
+
+  const projects = await fetchData(`${API_URL}/api/projects`);
+  const featured = await fetchData(`${API_URL}/api/featured`);
+  const jobs = await fetchData(`${API_URL}/api/jobs`);
+  const posts = await fetchData(`${API_URL}/api/posts`);
+  const profile = await fetchData(`${API_URL}/api/profile`);
 
   const createDatabaseNode = (data, type) => {
     const nodeContent = JSON.stringify(data);

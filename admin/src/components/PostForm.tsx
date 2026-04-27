@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 import ImageUpload from './ImageUpload';
 import RichTextEditor from './RichTextEditor';
 
@@ -52,9 +53,7 @@ export default function PostForm({ post, onSuccess, onCancel }: PostFormProps) {
             tags: JSON.stringify(formData.tags.split(',').map(t => t.trim()).filter(Boolean)),
         };
 
-        const url = post?.id
-            ? `http://localhost:3001/api/posts/${post.id}`
-            : 'http://localhost:3001/api/posts';
+        const url = post?.id ? `${API_BASE_URL}/api/posts/${post.id}` : `${API_BASE_URL}/api/posts`;
         const method = post?.id ? 'PUT' : 'POST';
 
         try {

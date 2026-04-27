@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, User, FileText, Globe, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 import FileUpload from '../components/FileUpload';
 import SkillsEditor from '../components/SkillsEditor';
 
@@ -44,7 +45,7 @@ export default function Settings() {
     const { token } = useAuth();
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/profile')
+        fetch(`${API_BASE_URL}/api/profile`)
             .then(res => res.json())
             .then(data => {
                 setProfile({
@@ -84,7 +85,7 @@ export default function Settings() {
                 return;
             }
 
-            const res = await fetch('http://localhost:3001/api/profile', {
+            const res = await fetch(`${API_BASE_URL}/api/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

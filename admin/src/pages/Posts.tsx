@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, FileText } from 'lucide-react';
 import Modal from '../components/Modal';
 import PostForm from '../components/PostForm';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 interface Post {
     id: string;
@@ -23,7 +24,7 @@ export default function PostsPage() {
 
     const fetchPosts = () => {
         setLoading(true);
-        fetch('http://localhost:3001/api/posts')
+        fetch(`${API_BASE_URL}/api/posts`)
             .then(res => res.json())
             .then(data => {
                 setPosts(data);
@@ -38,7 +39,7 @@ export default function PostsPage() {
     const deletePost = async (id: string) => {
         if (!window.confirm('Are you sure you want to delete this post?')) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/posts/${id}`, {
+            const res = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

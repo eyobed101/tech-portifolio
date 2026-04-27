@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, ExternalLink, Code } from 'lucide-react';
 import Modal from '../components/Modal';
 import ProjectForm from '../components/ProjectForm';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 interface Project {
     id: string;
@@ -23,7 +24,7 @@ export default function ProjectsPage() {
 
     const fetchProjects = () => {
         setLoading(true);
-        fetch('http://localhost:3001/api/projects')
+        fetch(`${API_BASE_URL}/api/projects`)
             .then(res => res.json())
             .then(data => {
                 setProjects(data);
@@ -38,7 +39,7 @@ export default function ProjectsPage() {
     const deleteProject = async (id: string) => {
         if (!window.confirm('Are you sure you want to delete this project?')) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/projects/${id}`, {
+            const res = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

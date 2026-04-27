@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 import ImageUpload from './ImageUpload';
 import DynamicListInput from './DynamicListInput';
 
@@ -58,9 +59,7 @@ export default function ProjectForm({ project, onSuccess, onCancel }: ProjectFor
             tech: JSON.stringify(tech),
         };
 
-        const url = project?.id
-            ? `http://localhost:3001/api/projects/${project.id}`
-            : 'http://localhost:3001/api/projects';
+        const url = project?.id ? `${API_BASE_URL}/api/projects/${project.id}` : `${API_BASE_URL}/api/projects`;
         const method = project?.id ? 'PUT' : 'POST';
 
         try {

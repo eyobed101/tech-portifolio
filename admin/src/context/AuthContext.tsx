@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 
 interface User {
     id: string;
@@ -26,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (savedToken) {
             setToken(savedToken);
             // Validate token and get user
-            fetch('http://localhost:3001/api/auth/me', {
+            fetch(`${API_BASE_URL}/api/auth/me`, {
                 headers: { Authorization: `Bearer ${savedToken}` }
             })
                 .then(res => {

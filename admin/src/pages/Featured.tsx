@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, ExternalLink, Code } from 'lucide-react';
 import Modal from '../components/Modal';
 import FeaturedForm from '../components/FeaturedForm';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 interface FeaturedProject {
     id: string;
@@ -23,7 +24,7 @@ export default function FeaturedPage() {
 
     const fetchProjects = () => {
         setLoading(true);
-        fetch('http://localhost:3001/api/featured')
+        fetch(`${API_BASE_URL}/api/featured`)
             .then(res => res.json())
             .then(data => {
                 setProjects(data);
@@ -38,7 +39,7 @@ export default function FeaturedPage() {
     const deleteProject = async (id: string) => {
         if (!window.confirm('Are you sure you want to delete this featured project?')) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/featured/${id}`, {
+            const res = await fetch(`${API_BASE_URL}/api/featured/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

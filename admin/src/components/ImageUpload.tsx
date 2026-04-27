@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 
 interface ImageUploadProps {
@@ -21,7 +22,7 @@ export default function ImageUpload({ value, onChange, label = 'Cover Image' }: 
         formData.append('image', file);
 
         try {
-            const res = await fetch('http://localhost:3001/api/upload', {
+            const res = await fetch(`${API_BASE_URL}/api/upload`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

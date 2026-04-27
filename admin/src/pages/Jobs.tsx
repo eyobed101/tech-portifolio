@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, Briefcase } from 'lucide-react';
 import Modal from '../components/Modal';
 import JobForm from '../components/JobForm';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 interface Job {
     id: string;
@@ -23,7 +24,7 @@ export default function JobsPage() {
 
     const fetchJobs = () => {
         setLoading(true);
-        fetch('http://localhost:3001/api/jobs')
+        fetch(`${API_BASE_URL}/api/jobs`)
             .then(res => res.json())
             .then(data => {
                 setJobs(data);
@@ -38,7 +39,7 @@ export default function JobsPage() {
     const deleteJob = async (id: string) => {
         if (!window.confirm('Are you sure you want to delete this job?')) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/jobs/${id}`, {
+            const res = await fetch(`${API_BASE_URL}/api/jobs/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
