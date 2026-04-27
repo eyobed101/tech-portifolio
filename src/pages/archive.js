@@ -180,11 +180,9 @@ const ArchivePage = ({ location, data }) => {
               {projects.length > 0 &&
                 projects.map((node, i) => {
                   const {
-                    date,
+                    createdAt,
                     github,
                     external,
-                    ios,
-                    android,
                     title,
                     tech,
                     company,
@@ -192,7 +190,7 @@ const ArchivePage = ({ location, data }) => {
                   const techList = typeof tech === 'string' ? JSON.parse(tech) : tech;
                   return (
                     <tr key={i} ref={el => (revealProjects.current[i] = el)}>
-                      <td className="overline year">{`${new Date(date).getFullYear()}`}</td>
+                      <td className="overline year">{`${new Date(createdAt).getFullYear()}`}</td>
 
                       <td className="title">{title}</td>
 
@@ -223,16 +221,6 @@ const ArchivePage = ({ location, data }) => {
                               <Icon name="GitHub" />
                             </a>
                           )}
-                          {ios && (
-                            <a href={ios} aria-label="Apple App Store Link">
-                              <Icon name="AppStore" />
-                            </a>
-                          )}
-                          {android && (
-                            <a href={android} aria-label="Google Play Store Link">
-                              <Icon name="PlayStore" />
-                            </a>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -254,16 +242,14 @@ export default ArchivePage;
 
 export const pageQuery = graphql`
   {
-    allDatabaseProject(sort: { fields: [date], order: DESC }) {
+    allDatabaseProject(sort: { fields: [createdAt], order: DESC }) {
       edges {
         node {
-          date
+          createdAt
           title
           tech
           github
           external
-          ios
-          android
           company
         }
       }
