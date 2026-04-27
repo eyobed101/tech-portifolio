@@ -135,6 +135,7 @@ exports.createSchemaCustomization = ({ actions }) => {
       tags: String
       content: String
       cover: String
+      draft: Boolean
     }
   `;
   createTypes(typeDefs);
