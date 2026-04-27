@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { navLinks } from '@config';
 import { KEY_CODES } from '@utils';
 import { useOnClickOutside } from '@hooks';
+import ThemeToggle from './ThemeToggle';
 
 const StyledMenu = styled.div`
   display: none;
@@ -153,6 +154,11 @@ const StyledSidebar = styled.aside`
     margin: 10% auto 0;
     width: max-content;
   }
+
+  .theme-toggle-wrapper {
+    margin: 30px auto;
+    ${({ theme }) => theme.mixins.flexCenter};
+  }
 `;
 
 const Menu = () => {
@@ -283,6 +289,10 @@ const Menu = () => {
             <a href={resumeUrl} className="resume-link">
               Resume
             </a>
+
+            <div className="theme-toggle-wrapper">
+              <ThemeToggle />
+            </div>
           </nav>
         </StyledSidebar>
       </div>
