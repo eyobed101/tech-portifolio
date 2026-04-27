@@ -13,7 +13,6 @@ import {
   Heading1,
   Heading2,
   Link as LinkIcon,
-  Image as ImageIcon,
   Code
 } from 'lucide-react';
 import { useEffect } from 'react';
@@ -133,7 +132,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
-export default function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,

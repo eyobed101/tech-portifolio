@@ -12,8 +12,8 @@ import SettingsPage from './pages/Settings';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
-  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { logout, user } = useAuth();
 
   const navItems = [
