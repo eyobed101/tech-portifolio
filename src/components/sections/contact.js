@@ -102,9 +102,7 @@ const Contact = () => {
         Say Hello
       </a>
 
-      <div className="terminal-wrapper">
-        <ThreeDTerminal />
-      </div>
+
     </StyledContactSection>
   );
 };
