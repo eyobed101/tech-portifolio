@@ -58,7 +58,9 @@ const authMiddleware = (req: any, res: any, next: any) => {
 // --- Upload Route ---
 app.post('/api/upload', authMiddleware, upload.single('image'), (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const url = `http://localhost:3001/uploads/${req.file.filename}`;
+    const protocol = req.protocol === 'https' ? 'https' : 'http';
+    const host = req.get('host');
+    const url = `${protocol}://${host}/uploads/${req.file.filename}`;
     res.json({ url });
 });
 
@@ -70,7 +72,16 @@ app.post('/api/auth/login', asyncHandler(async (req: any, res: any) => {
         return res.status(401).json({ error: 'Invalid credentials' });
     }
     const token = jwt.sign({ userId: user.id }, JWT_SECRET);
-    res.json({ token });
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
+}));
+
+app.get('/api/auth/me', authMiddleware, asyncHandler(async (req: any, res: any) => {
+    const user = await prisma.user.findUnique({
+        where: { id: req.user.userId },
+        select: { id: true, email: true, name: true }
+    });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
 }));
 
 // --- Projects ---
