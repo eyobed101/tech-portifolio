@@ -476,11 +476,6 @@ const Hero = () => {
                   <div style={{ transitionDelay: `${i + 1}00ms` }}>{item}</div>
                 </CSSTransition>
               ))}
-            {isMounted && (
-              <CSSTransition classNames="fade" timeout={loaderDelay} appear>
-                <div style={{ transitionDelay: '700ms' }}>{seven}</div>
-              </CSSTransition>
-            )}
           </TransitionGroup>
         )}
       </div>
@@ -496,6 +491,18 @@ const Hero = () => {
           )}
         </TransitionGroup>
       </div>
+
+      <TransitionGroup component={null}>
+        {isMounted && (
+          <CSSTransition classNames="fade" timeout={loaderDelay} appear>
+            <div style={{ position: 'absolute', right: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none', transitionDelay: '700ms', zIndex: 10 }}>
+              <div style={{ pointerEvents: 'auto', position: 'relative', width: '100%', height: '100%' }}>
+                {seven}
+              </div>
+            </div>
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </StyledHeroSection>
   );
 };
