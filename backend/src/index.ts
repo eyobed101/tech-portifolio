@@ -55,6 +55,13 @@ const authMiddleware = (req: any, res: any, next: any) => {
     }
 };
 
+// --- Upload Route ---
+app.post('/api/upload', authMiddleware, upload.single('image'), (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const url = `http://localhost:3001/uploads/${req.file.filename}`;
+    res.json({ url });
+});
+
 // --- Auth Routes ---
 app.post('/api/auth/login', asyncHandler(async (req: any, res: any) => {
     const { email, password } = req.body;

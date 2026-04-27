@@ -167,9 +167,29 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   const posts = result.data.posts.edges;
   const tagsSet = new Set();
 
-  posts.forEach(({ node }) => {
+  const postsPerPage = 6;
+  const numPages = Math.ceil(posts.length / postsPerPage) || 1; // at least 1 page
+
+  Array.from({ length: numPages }).forEach((_, i) => {
     createPage({
-      path: node.slug,
+      path: i === 0 ? `/pensieve` : `/pensieve/page/${i + 1}`,
+      component: path.resolve('./src/templates/pensieve-list.js'),
+      context: {
+        limit: postsPerPage,
+        skip: i * postsPerPage,
+        numPages,
+        currentPage: i + 1,
+      },
+    });
+  });
+
+  posts.forEach(({ node }) => {
+    const isPrefixed = node.slug.startsWith('/pensieve/');
+    const cleanSlug = node.slug.replace(/^\//, '');
+    const normalizedPath = isPrefixed ? node.slug : `/pensieve/${cleanSlug}`;
+
+    createPage({
+      path: normalizedPath,
       component: postTemplate,
       context: {
         slug: node.slug,

@@ -142,12 +142,38 @@ const StyledPost = styled.li`
   }
 `;
 
-const PensievePage = ({ location, data }) => {
-  const posts = data.allMarkdownRemark.edges;
+const StyledPagination = styled.div`
+  ${({ theme }) => theme.mixins.flexBetween};
+  margin-top: 50px;
+  padding-top: 20px;
+  border-top: 1px solid var(--lightest-navy);
+
+  a {
+    color: var(--green);
+    font-family: var(--font-mono);
+    font-size: var(--fz-sm);
+    &:hover {
+      color: var(--green-tint);
+    }
+    &.disabled {
+      color: var(--lightest-navy);
+      pointer-events: none;
+    }
+  }
+`;
+
+const PensieveList = ({ location, data, pageContext }) => {
+  const posts = data.allDatabasePost.edges;
+  const { currentPage, numPages } = pageContext;
+
+  const isFirst = currentPage === 1;
+  const isLast = currentPage === numPages;
+  const prevPage = currentPage - 1 === 1 ? '/pensieve' : `/pensieve/page/${currentPage - 1}`;
+  const nextPage = `/pensieve/page/${currentPage + 1}`;
 
   return (
     <Layout location={location}>
-      <Helmet title="Pensieve" />
+      <Helmet title={`Pensieve - Page ${currentPage}`} />
 
       <StyledMainContainer>
         <header>
@@ -162,9 +188,16 @@ const PensievePage = ({ location, data }) => {
         <StyledGrid>
           {posts.length > 0 &&
             posts.map(({ node }, i) => {
-              const { frontmatter } = node;
-              const { title, description, slug, date, tags } = frontmatter;
+              const { title, description, slug, date, tags } = node;
               const formattedDate = new Date(date).toLocaleDateString();
+              let parsedTags = [];
+              try {
+                parsedTags = JSON.parse(tags || '[]');
+              } catch (e) {
+                if (typeof tags === 'string') parsedTags = tags.split(',').map(t => t.trim());
+              }
+              const isPrefixed = slug.startsWith('/pensieve/');
+              const formattedSlug = isPrefixed ? slug : `/pensieve/${slug.replace(/^\//, '')}`;
 
               return (
                 <StyledPost key={i}>
@@ -174,7 +207,7 @@ const PensievePage = ({ location, data }) => {
                         <IconBookmark />
                       </div>
                       <h5 className="post__title">
-                        <Link to={slug}>{title}</Link>
+                        <Link to={formattedSlug}>{title}</Link>
                       </h5>
                       <p className="post__desc">{description}</p>
                     </header>
@@ -182,7 +215,7 @@ const PensievePage = ({ location, data }) => {
                     <footer>
                       <span className="post__date">{formattedDate}</span>
                       <ul className="post__tags">
-                        {tags.map((tag, i) => (
+                        {parsedTags.map((tag, i) => (
                           <li key={i}>
                             <Link to={`/pensieve/tags/${kebabCase(tag)}/`} className="inline-link">
                               #{tag}
@@ -196,35 +229,47 @@ const PensievePage = ({ location, data }) => {
               );
             })}
         </StyledGrid>
+
+        {numPages > 1 && (
+          <StyledPagination>
+            <Link to={prevPage} className={isFirst ? 'disabled' : ''}>
+              ← Previous
+            </Link>
+            <span>
+              Page {currentPage} of {numPages}
+            </span>
+            <Link to={nextPage} className={isLast ? 'disabled' : ''}>
+              Next →
+            </Link>
+          </StyledPagination>
+        )}
       </StyledMainContainer>
     </Layout>
   );
 };
 
-PensievePage.propTypes = {
+PensieveList.propTypes = {
   location: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
+  pageContext: PropTypes.object.isRequired,
 };
 
-export default PensievePage;
+export default PensieveList;
 
 export const pageQuery = graphql`
-  {
-    allMarkdownRemark(
-      filter: { fileAbsolutePath: { regex: "/content/posts/" }, frontmatter: { draft: { ne: true } } }
-      sort: { fields: [frontmatter___date], order: DESC }
+  query pensieveListQuery($skip: Int!, $limit: Int!) {
+    allDatabasePost(
+      sort: { fields: [date], order: DESC }
+      limit: $limit
+      skip: $skip
     ) {
       edges {
         node {
-          frontmatter {
-            title
-            description
-            slug
-            date
-            tags
-            draft
-          }
-          html
+          title
+          description
+          slug
+          date
+          tags
         }
       }
     }
