@@ -55,12 +55,28 @@ const authMiddleware = (req: any, res: any, next: any) => {
     }
 };
 
+// Helper to normalize URLs (replaces localhost with current host for existing data)
+const normalizeUrl = (req: any, url: string | null | undefined) => {
+    if (!url) return url;
+    const protocol = req.protocol === 'https' ? 'https' : 'http';
+    const host = req.get('host');
+    const baseUrl = `${protocol}://${host}`;
+
+    if (url.startsWith('/uploads/')) {
+        return `${baseUrl}${url}`;
+    }
+
+    if (url.includes('localhost:')) {
+        return url.replace(/http:\/\/localhost:\d+/g, baseUrl);
+    }
+
+    return url;
+};
+
 // --- Upload Route ---
 app.post('/api/upload', authMiddleware, upload.single('image'), (req: any, res: any) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const protocol = req.protocol === 'https' ? 'https' : 'http';
-    const host = req.get('host');
-    const url = `${protocol}://${host}/uploads/${req.file.filename}`;
+    const url = `/uploads/${req.file.filename}`;
     res.json({ url });
 });
 
@@ -87,7 +103,7 @@ app.get('/api/auth/me', authMiddleware, asyncHandler(async (req: any, res: any) 
 // --- Projects ---
 app.get('/api/projects', asyncHandler(async (req: any, res: any) => {
     const projects = await prisma.project.findMany({ orderBy: { createdAt: 'desc' } });
-    res.json(projects);
+    res.json(projects.map(p => ({ ...p, cover: normalizeUrl(req, p.cover) })));
 }));
 
 app.post('/api/projects', authMiddleware, asyncHandler(async (req: any, res: any) => {
@@ -111,7 +127,7 @@ app.delete('/api/projects/:id', authMiddleware, asyncHandler(async (req: any, re
 // --- Featured ---
 app.get('/api/featured', asyncHandler(async (req: any, res: any) => {
     const featured = await prisma.featuredProject.findMany({ orderBy: { createdAt: 'asc' } });
-    res.json(featured);
+    res.json(featured.map(f => ({ ...f, cover: normalizeUrl(req, f.cover) })));
 }));
 
 app.post('/api/featured', authMiddleware, asyncHandler(async (req: any, res: any) => {
@@ -159,7 +175,13 @@ app.delete('/api/jobs/:id', authMiddleware, asyncHandler(async (req: any, res: a
 // --- Posts ---
 app.get('/api/posts', asyncHandler(async (req: any, res: any) => {
     const posts = await prisma.post.findMany({ orderBy: { date: 'desc' } });
-    res.json(posts);
+    res.json(posts.map(p => ({ ...p, cover: normalizeUrl(req, p.cover) })));
+}));
+
+app.get('/api/posts/:slug', asyncHandler(async (req: any, res: any) => {
+    const post = await prisma.post.findUnique({ where: { slug: req.params.slug } });
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    res.json({ ...post, cover: normalizeUrl(req, post.cover) });
 }));
 
 app.post('/api/posts', authMiddleware, asyncHandler(async (req: any, res: any) => {
@@ -230,7 +252,11 @@ app.get('/api/profile', asyncHandler(async (req: any, res: any) => {
             }
         });
     }
-    res.json(profile);
+    res.json({
+        ...profile,
+        resumeUrl: normalizeUrl(req, profile.resumeUrl),
+        aboutImage: normalizeUrl(req, profile.aboutImage)
+    });
 }));
 
 app.put('/api/profile', authMiddleware, asyncHandler(async (req: any, res: any) => {
