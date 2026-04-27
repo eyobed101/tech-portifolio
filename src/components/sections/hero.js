@@ -457,7 +457,7 @@ const Hero = () => {
     </ThreeDTerminal>
   );
 
-  const items = [one, two, three, four, five, six, seven];
+  const items = [one, two, three, four, five, six];
 
   return (
     <StyledHeroSection id="hero">
@@ -476,6 +476,11 @@ const Hero = () => {
                   <div style={{ transitionDelay: `${i + 1}00ms` }}>{item}</div>
                 </CSSTransition>
               ))}
+            {isMounted && (
+              <CSSTransition classNames="fade" timeout={loaderDelay} appear>
+                <div style={{ transitionDelay: '700ms' }}>{seven}</div>
+              </CSSTransition>
+            )}
           </TransitionGroup>
         )}
       </div>
