@@ -1,11 +1,12 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
 const prisma = new PrismaClient();
 
 async function createAdmin() {
-    const email = 'admin@web4.to';
-    const password = 'password123'; // In a real app, use environment variables!
+    const email = process.env.ADMIN_EMAIL;
+    const password = process.env.ADMIN_PASSWORD;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -16,7 +17,7 @@ async function createAdmin() {
             create: {
                 email,
                 password: hashedPassword,
-                name: 'Admin User'
+                name: 'Eyobed Elias'
             }
         });
         console.log('Admin user created/updated:', user.email);
