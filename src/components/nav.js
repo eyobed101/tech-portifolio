@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useStaticQuery, graphql, Link } from 'gatsby';
+import { Link } from 'gatsby';
 import PropTypes from 'prop-types';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled, { css } from 'styled-components';
@@ -157,40 +157,22 @@ const StyledLinks = styled.div`
   }
 `;
 
+import { profile as fallbackProfile } from '../fallbackData';
+
 const Nav = ({ isHome }) => {
   const [isMounted, setIsMounted] = useState(!isHome);
   const scrollDirection = useScrollDirection('down');
   const [scrolledToTop, setScrolledToTop] = useState(true);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const buildData = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            resumeUrl
-            email
-            github
-            linkedin
-            twitter
-            instagram
-            codepen
-          }
-        }
-      }
-    }
-  `);
-
-  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
-
-  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
   }, {
-    initialData: initialProfile,
+    initialData: fallbackProfile,
   });
 
-  const resumeUrl = profile.resumeUrl || '/resume.pdf';
+  const resumeUrl = profile.resumeUrl || fallbackProfile.resumeUrl || '/resume.pdf';
 
   const handleScroll = () => {
     setScrolledToTop(window.pageYOffset < 50);

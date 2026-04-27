@@ -1,4 +1,12 @@
 module.exports = {
+  siteMetadata: {
+    title: 'Eyobed Elias',
+    description:
+      'Eyobed Elias is a seasoned Software Developer, Cybersecurity Researcher, and CTO specializing in building secure, high-impact digital solutions.',
+    siteUrl: 'https://eyobedelias.net.et',
+    image: '/og2.png',
+    twitterUsername: '@eyobedelias',
+  },
   email: 'eyobedeliast@gmail.com',
 
   socialMedia: [

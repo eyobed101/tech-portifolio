@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, graphql } from 'gatsby';
+import { Link } from 'gatsby';
 import kebabCase from 'lodash/kebabCase';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
@@ -31,13 +31,39 @@ const StyledTagsContainer = styled.main`
   }
 `;
 
-const TagsPage = ({
-  data: {
-    allMarkdownRemark: { group },
-  },
-  location,
-}) => (
-  <Layout location={location}>
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
+import { posts as fallbackPosts } from '../../fallbackData';
+
+const TagsPage = ({ data, location }) => {
+  const buildGroup = data.allMarkdownRemark?.group || [];
+
+  const { data: group = [] } = useQuery(['tags'], async () => {
+    const res = await api.get('/api/posts');
+    const allPosts = res.data.filter(p => !p.draft);
+    const tagsMap = {};
+    allPosts.forEach(p => {
+        let tagsList = [];
+        try {
+            tagsList = typeof p.tags === 'string' ? JSON.parse(p.tags || '[]') : p.tags;
+        } catch (e) {
+            tagsList = typeof p.tags === 'string' ? p.tags.split(',').map(t => t.trim()) : p.tags || [];
+        }
+        tagsList.forEach(t => {
+            tagsMap[t] = (tagsMap[t] || 0) + 1;
+        });
+    });
+    return Object.keys(tagsMap).map(tag => ({ fieldValue: tag, totalCount: tagsMap[tag] }));
+  }, {
+    initialData: buildGroup.length > 0 ? buildGroup : (() => {
+        const tagsMap = {};
+        fallbackPosts.forEach(p => p.tags.forEach(t => { tagsMap[t] = (tagsMap[t] || 0) + 1; }));
+        return Object.keys(tagsMap).map(tag => ({ fieldValue: tag, totalCount: tagsMap[tag] }));
+    })(),
+  });
+
+  return (
+    <Layout location={location}>
     <Helmet title="Tags" />
 
     <StyledTagsContainer>

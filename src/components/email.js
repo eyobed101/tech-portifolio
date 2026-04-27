@@ -1,5 +1,4 @@
 import React from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Side } from '@components';
@@ -37,27 +36,17 @@ const StyledLinkWrapper = styled.div`
   }
 `;
 
+import { profile as fallbackProfile } from '../fallbackData';
+
 const Email = ({ isHome }) => {
-  const buildData = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            email
-          }
-        }
-      }
-    }
-  `);
-
-  const initialEmail = buildData.allDatabaseProfile.edges[0]?.node?.email || 'eyobedeliast@gmail.com';
-
-  const { data: profile } = useQuery(['profile'], async () => {
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
+  }, {
+    initialData: fallbackProfile,
   });
 
-  const email = profile?.email || initialEmail;
+  const email = profile?.email || fallbackProfile.email;
 
   return (
     <Side isHome={isHome} orientation="right">

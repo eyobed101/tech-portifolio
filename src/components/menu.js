@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useStaticQuery, graphql, Link } from 'gatsby';
+import { Link } from 'gatsby';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { navLinks } from '@config';
@@ -161,24 +161,23 @@ const StyledSidebar = styled.aside`
   }
 `;
 
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
+import { profile as fallbackProfile } from '../fallbackData';
+
 const Menu = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  const data = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            resumeUrl
-          }
-        }
-      }
-    }
-  `);
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  }, {
+    initialData: fallbackProfile,
+  });
 
-  const resumeUrl = data.allDatabaseProfile.edges[0]?.node?.resumeUrl || '/resume.pdf';
+  const resumeUrl = profile.resumeUrl || fallbackProfile.resumeUrl || '/resume.pdf';
 
   const buttonRef = useRef(null);
   const navRef = useRef(null);

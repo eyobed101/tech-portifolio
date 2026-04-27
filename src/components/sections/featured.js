@@ -1,6 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
-import { GatsbyImage, getImage } from 'gatsby-plugin-image';
 import styled from 'styled-components';
 import sr from '@utils/sr';
 import { srConfig } from '@config';
@@ -306,31 +304,14 @@ const StyledProject = styled.li`
   }
 `;
 
+import { projects as fallbackFeatured } from '../../fallbackData';
+
 const Featured = () => {
-  const buildData = useStaticQuery(graphql`
-    {
-      featured: allDatabaseFeatured(sort: { fields: [createdAt], order: ASC }) {
-        edges {
-          node {
-            title
-            cover
-            tech
-            github
-            external
-            content
-          }
-        }
-      }
-    }
-  `);
-
-  const initialFeatured = buildData.featured.edges.map(({ node }) => node);
-
-  const { data: featuredProjects = initialFeatured } = useQuery(['featured'], async () => {
+  const { data: featuredProjects = fallbackFeatured } = useQuery(['featured'], async () => {
     const res = await api.get('/api/featured');
     return res.data;
   }, {
-    initialData: initialFeatured,
+    initialData: fallbackFeatured,
   });
   const revealTitle = useRef(null);
   const revealProjects = useRef([]);
@@ -355,7 +336,18 @@ const Featured = () => {
         {featuredProjects &&
           featuredProjects.map((node, i) => {
             const { external, title, tech, github, cover, content } = node;
-            const techList = JSON.parse(tech);
+            let techList = [];
+            if (tech) {
+              if (typeof tech === 'string') {
+                try {
+                  techList = JSON.parse(tech);
+                } catch (e) {
+                  techList = [tech];
+                }
+              } else {
+                techList = tech;
+              }
+            }
 
             return (
               <ThreeDTilt key={i} maxTilt={5}>

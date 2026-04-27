@@ -164,17 +164,18 @@ const StyledPagination = styled.div`
   }
 `;
 
+import { posts as fallbackPosts } from '../fallbackData';
+
 const PensieveList = ({ location, data, pageContext }) => {
-  const initialPosts = data.allDatabasePost.edges.map(({ node }) => node);
+  const buildPosts = data.allDatabasePost.edges.map(({ node }) => node);
   const { currentPage, numPages, limit, skip } = pageContext;
 
-  const { data: postsList = initialPosts } = useQuery(['posts', currentPage], async () => {
+  const { data: postsList = buildPosts.length > 0 ? buildPosts : fallbackPosts } = useQuery(['posts', currentPage], async () => {
     const res = await api.get('/api/posts');
     const allPosts = res.data.filter(p => !p.draft).sort((a, b) => new Date(b.date) - new Date(a.date));
-    // Slicing on client side to match Gatsby's pagination
     return allPosts.slice(skip, skip + limit);
   }, {
-    initialData: initialPosts,
+    initialData: buildPosts.length > 0 ? buildPosts : fallbackPosts,
   });
 
   const posts = postsList;

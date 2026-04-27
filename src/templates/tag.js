@@ -45,9 +45,34 @@ const StyledTagsContainer = styled.main`
   }
 `;
 
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
+import { posts as fallbackPosts } from '../fallbackData';
+
 const TagTemplate = ({ pageContext, data, location }) => {
   const { tag } = pageContext;
-  const { edges } = data.allMarkdownRemark;
+  const buildEdges = data.allMarkdownRemark?.edges || [];
+
+  const { data: posts = [] } = useQuery(['posts-tag', tag], async () => {
+    const res = await api.get('/api/posts');
+    const allPosts = res.data.filter(p => !p.draft);
+    return allPosts.filter(p => {
+        let tagsList = [];
+        try {
+            tagsList = JSON.parse(p.tags || '[]');
+        } catch (e) {
+            tagsList = p.tags ? p.tags.split(',').map(t => t.trim()) : [];
+        }
+        return tagsList.includes(tag);
+    });
+  }, {
+    initialData: buildEdges.map(e => e.node.frontmatter).length > 0 ? buildEdges.map(e => ({
+        title: e.node.frontmatter.title,
+        slug: e.node.frontmatter.slug,
+        date: e.node.frontmatter.date,
+        tags: e.node.frontmatter.tags
+    })) : fallbackPosts.filter(p => p.tags.includes(tag)),
+  });
 
   return (
     <Layout location={location}>
@@ -67,12 +92,21 @@ const TagTemplate = ({ pageContext, data, location }) => {
         </h1>
 
         <ul className="fancy-list">
-          {edges.map(({ node }) => {
-            const { title, slug, date, tags } = node.frontmatter;
+          {posts.map(post => {
+            const { title, slug, date, tags } = post;
+            const isPrefixed = slug.startsWith('/pensieve/');
+            const formattedSlug = isPrefixed ? slug : `/pensieve/${slug.replace(/^\//, '')}`;
+            let parsedTags = [];
+            try {
+              parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+            } catch (e) {
+              parsedTags = typeof tags === 'string' ? tags.split(',').map(t => t.trim()) : tags;
+            }
+
             return (
               <li key={slug}>
                 <h2>
-                  <Link to={slug}>{title}</Link>
+                  <Link to={formattedSlug}>{title}</Link>
                 </h2>
                 <p className="subtitle">
                   <time>
@@ -83,11 +117,11 @@ const TagTemplate = ({ pageContext, data, location }) => {
                     })}
                   </time>
                   <span>&nbsp;&mdash;&nbsp;</span>
-                  {tags &&
-                    tags.length > 0 &&
-                    tags.map((tag, i) => (
-                      <Link key={i} to={`/pensieve/tags/${kebabCase(tag)}/`} className="tag">
-                        #{tag}
+                  {parsedTags &&
+                    parsedTags.length > 0 &&
+                    parsedTags.map((t, i) => (
+                      <Link key={i} to={`/pensieve/tags/${kebabCase(t)}/`} className="tag">
+                        #{t}
                       </Link>
                     ))}
                 </p>

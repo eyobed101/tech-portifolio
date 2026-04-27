@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
 import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
@@ -53,30 +52,20 @@ const StyledContactSection = styled.section`
   }
 `;
 
+import { profile as fallbackProfile } from '../../fallbackData';
+
 const Contact = () => {
   const revealContainer = useRef(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const buildData = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            email
-          }
-        }
-      }
-    }
-  `);
-
-  const initialEmail = buildData.allDatabaseProfile.edges[0]?.node?.email || 'eyobedeliast@gmail.com';
-
-  const { data: profile } = useQuery(['profile'], async () => {
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
+  }, {
+    initialData: fallbackProfile,
   });
 
-  const email = profile?.email || initialEmail;
+  const email = profile?.email || fallbackProfile.email;
 
   useEffect(() => {
     if (prefersReducedMotion) {

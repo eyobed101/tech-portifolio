@@ -1,5 +1,5 @@
 import React from 'react';
-import { graphql, Link } from 'gatsby';
+import { Link } from 'gatsby';
 import kebabCase from 'lodash/kebabCase';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
@@ -101,17 +101,19 @@ const StyledShare = styled.div`
   }
 `;
 
+import { posts as fallbackPosts } from '../fallbackData';
+
 const PostTemplate = ({ data, location }) => {
   const initialPost = data.databasePost;
-  const slug = initialPost.slug;
+  const slug = initialPost?.slug || '';
 
-  const { data: post = initialPost } = useQuery(['post', slug], async () => {
+  const { data: post = initialPost || fallbackPosts[0] } = useQuery(['post', slug], async () => {
     const res = await api.get(`/api/posts`);
-    // Find the post by slug since we don't have a single-post endpoint yet
-    // Or I should implement a single-post endpoint in the backend for better performance
-    return res.data.find(p => p.slug === slug || p.slug === slug.replace(/^\//, '') || ('/' + p.slug === slug));
+    const found = res.data.find(p => p.slug === slug || p.slug === slug.replace(/^\//, '') || ('/' + p.slug === slug));
+    return found;
   }, {
-    initialData: initialPost,
+    initialData: initialPost || fallbackPosts[0],
+    enabled: !!slug,
   });
 
   const { title, date, tags, content, description, cover } = post;

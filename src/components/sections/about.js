@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
 import { StaticImage } from 'gatsby-plugin-image';
 import styled from 'styled-components';
 import { srConfig } from '@config';
@@ -213,32 +212,17 @@ const StyledPic = styled.div`
   }
 `;
 
+import { profile as fallbackProfile } from '../../fallbackData';
+
 const About = () => {
   const revealContainer = useRef(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const buildData = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            aboutTitle
-            aboutContent
-            aboutImage
-            aboutSkills
-          }
-        }
-      }
-    }
-  `);
-
-  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
-
-  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
   }, {
-    initialData: initialProfile,
+    initialData: fallbackProfile,
   });
 
   const aboutTitle = profile.aboutTitle || 'About Me';
@@ -246,10 +230,14 @@ const About = () => {
   const aboutImage = profile.aboutImage;
 
   let skillCategories = [];
-  try {
-    skillCategories = JSON.parse(profile.aboutSkills || '[]');
-  } catch (e) {
-    console.error("Error parsing skills", e);
+  if (typeof profile.aboutSkills === 'string') {
+    try {
+      skillCategories = JSON.parse(profile.aboutSkills || '[]');
+    } catch (e) {
+      console.error("Error parsing skills", e);
+    }
+  } else {
+    skillCategories = profile.aboutSkills || [];
   }
 
   if (skillCategories.length === 0) {

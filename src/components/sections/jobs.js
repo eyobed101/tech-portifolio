@@ -166,31 +166,14 @@ const StyledTabPanel = styled.div`
   }
 `;
 
+import { jobs as fallbackJobs } from '../../fallbackData';
+
 const Jobs = () => {
-  const buildData = useStaticQuery(graphql`
-    query {
-      jobs: allDatabaseJob(sort: { fields: [createdAt], order: DESC }) {
-        edges {
-          node {
-            title
-            company
-            location
-            range
-            url
-            content
-          }
-        }
-      }
-    }
-  `);
-
-  const initialJobs = buildData.jobs.edges.map(({ node }) => node);
-
-  const { data: jobsList = initialJobs } = useQuery(['jobs'], async () => {
+  const { data: jobsList = fallbackJobs } = useQuery(['jobs'], async () => {
     const res = await api.get('/api/jobs');
     return res.data;
   }, {
-    initialData: initialJobs,
+    initialData: fallbackJobs,
   });
 
   const jobsData = jobsList;
@@ -278,8 +261,15 @@ const Jobs = () => {
         <StyledTabPanels>
           {jobsData &&
             jobsData.map((node, i) => {
-              const { title, url, company, range, content } = node;
-              const points = JSON.parse(content);
+              const { title, url, company, range, content, html } = node;
+              let points = [];
+              if (content) {
+                try {
+                  points = JSON.parse(content);
+                } catch (e) {
+                  points = [content];
+                }
+              }
 
               return (
                 <CSSTransition key={i} in={activeTabId === i} timeout={250} classNames="fade">
@@ -302,11 +292,15 @@ const Jobs = () => {
 
                     <p className="range">{range}</p>
 
-                    <ul>
-                      {points.map((point, i) => (
-                        <li key={i}>{point}</li>
-                      ))}
-                    </ul>
+                    {html ? (
+                      <div dangerouslySetInnerHTML={{ __html: html }} />
+                    ) : (
+                      <ul>
+                        {points.map((point, i) => (
+                          <li key={i}>{point}</li>
+                        ))}
+                      </ul>
+                    )}
                   </StyledTabPanel>
                 </CSSTransition>
               );

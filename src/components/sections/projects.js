@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useStaticQuery, graphql } from 'gatsby';
+import { Link } from 'gatsby';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { srConfig } from '@config';
@@ -167,34 +167,14 @@ const StyledProject = styled.li`
   }
 `;
 
+import { projects as fallbackProjects } from '../../fallbackData';
+
 const Projects = () => {
-  const buildData = useStaticQuery(graphql`
-    query {
-      projects: allDatabaseProject(
-        filter: { showInProjects: { ne: false } }
-        sort: { fields: [createdAt], order: DESC }
-      ) {
-        edges {
-          node {
-            title
-            tech
-            github
-            external
-            content
-            showInProjects
-          }
-        }
-      }
-    }
-  `);
-
-  const initialProjectsData = buildData.projects.edges.map(({ node }) => node);
-
-  const { data: allProjects = initialProjectsData } = useQuery(['projects'], async () => {
+  const { data: allProjects = fallbackProjects } = useQuery(['projects'], async () => {
     const res = await api.get('/api/projects');
     return res.data.filter(p => p.showInProjects !== false);
   }, {
-    initialData: initialProjectsData,
+    initialData: fallbackProjects,
   });
 
   const [showMore, setShowMore] = useState(false);
@@ -219,7 +199,18 @@ const Projects = () => {
 
   const projectInner = node => {
     const { github, external, title, tech, content } = node;
-    const techList = JSON.parse(tech);
+    let techList = [];
+    if (tech) {
+      if (typeof tech === 'string') {
+        try {
+          techList = JSON.parse(tech);
+        } catch (e) {
+          techList = [tech];
+        }
+      } else {
+        techList = tech;
+      }
+    }
 
     return (
       <div className="project-inner">

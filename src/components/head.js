@@ -6,27 +6,18 @@ import { useStaticQuery, graphql } from 'gatsby';
 
 // https://www.gatsbyjs.com/docs/add-seo-component/
 
+import config from '@config';
+
 const Head = ({ title, description, image }) => {
   const { pathname } = useLocation();
 
-  const { site } = useStaticQuery(
-    graphql`
-      query {
-        site {
-          siteMetadata {
-            defaultTitle: title
-            defaultDescription: description
-            siteUrl
-            defaultImage: image
-            twitterUsername
-          }
-        }
-      }
-    `,
-  );
-
-  const { defaultTitle, defaultDescription, siteUrl, defaultImage, twitterUsername } =
-    site.siteMetadata;
+  const {
+    title: defaultTitle,
+    description: defaultDescription,
+    siteUrl,
+    image: defaultImage,
+    twitterUsername,
+  } = config.siteMetadata;
 
   const seo = {
     title: title || defaultTitle,

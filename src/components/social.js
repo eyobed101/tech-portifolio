@@ -1,5 +1,4 @@
 import React from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Side } from '@components';
@@ -45,30 +44,14 @@ const StyledSocialList = styled.ul`
   }
 `;
 
+import { profile as fallbackProfile } from '../fallbackData';
+
 const Social = ({ isHome }) => {
-  const buildData = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            github
-            linkedin
-            twitter
-            instagram
-            codepen
-          }
-        }
-      }
-    }
-  `);
-
-  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
-
-  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
   }, {
-    initialData: initialProfile,
+    initialData: fallbackProfile,
   });
   const socialMedia = [
     { name: 'GitHub', url: profile.github },

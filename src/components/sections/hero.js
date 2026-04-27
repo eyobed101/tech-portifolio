@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
 import PropTypes from 'prop-types';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled, { keyframes } from 'styled-components';
@@ -368,35 +367,17 @@ TypewriterComponent.propTypes = {
   as: PropTypes.string,
 };
 
+import { profile as fallbackProfile } from '../../fallbackData';
+
 const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const buildData = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            name
-            intro
-            description
-          }
-        }
-      }
-    }
-  `);
-
-  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {
-    name: 'Eyobed Elias.',
-    intro: 'I build secure digital experiences.',
-    description: "I'm a software developer and CTO specializing in building secure, scalable systems across multiple platforms.",
-  };
-
-  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
   }, {
-    initialData: initialProfile,
+    initialData: fallbackProfile,
   });
 
   useEffect(() => {

@@ -1,3 +1,7 @@
+require('dotenv').config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
+
 /**
  * Implement Gatsby's Node APIs in this file.
  *
@@ -9,29 +13,18 @@ const _ = require('lodash');
 const axios = require('axios');
 const crypto = require('crypto');
 
+const {
+  profile: fallbackProfile,
+  jobs: fallbackJobs,
+  projects: fallbackProjects,
+  featured: fallbackFeatured,
+  posts: fallbackPosts,
+} = require('./src/fallbackDataNode');
+
 exports.sourceNodes = async ({ actions, createNodeId, createContentDigest }) => {
   const { createNode } = actions;
 
-  const fetchData = async (url) => {
-    try {
-      const response = await axios.get(url);
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching from ${url}:`, error.message);
-      return [];
-    }
-  };
-
-  const API_URL = process.env.GATSBY_API_URL || 'http://localhost:3001';
-
-  const projects = await fetchData(`${API_URL}/api/projects`);
-  const featured = await fetchData(`${API_URL}/api/featured`);
-  const jobs = await fetchData(`${API_URL}/api/jobs`);
-  const posts = await fetchData(`${API_URL}/api/posts`);
-  const profile = await fetchData(`${API_URL}/api/profile`);
-
   const createDatabaseNode = (data, type) => {
-    const nodeContent = JSON.stringify(data);
     const nodeMeta = {
       id: createNodeId(`${type}-${data.id || data.slug || 'single'}`),
       parent: null,
@@ -47,32 +40,14 @@ exports.sourceNodes = async ({ actions, createNodeId, createContentDigest }) => 
     createNode(node);
   };
 
-  projects.forEach(p => createDatabaseNode(p, 'DatabaseProject'));
-  featured.forEach(f => createDatabaseNode(f, 'DatabaseFeatured'));
-  jobs.forEach(j => createDatabaseNode(j, 'DatabaseJob'));
-  posts.forEach(p => createDatabaseNode(p, 'DatabasePost'));
-  if (profile && !Array.isArray(profile) && profile.id) {
-    createDatabaseNode(profile, 'DatabaseProfile');
-  } else {
-    // Fallback if no profile data in backend to prevent GraphQL query failure
-    createDatabaseNode({
-      id: 'singleton',
-      name: 'Eyobed Elias',
-      intro: 'I build secure digital experiences.',
-      description: "I'm a software developer and CTO specializing in building secure, scalable systems across multiple platforms. Currently leading technical innovation at Tripways while contributing to national cybersecurity systems at INSA.",
-      aboutTitle: 'About Me',
-      aboutContent: "Hello! I am a developer who crafts digital experiences with purpose.",
-      aboutSkills: JSON.stringify([
-        { category: 'Technologies', items: ['JavaScript', 'TypeScript', 'React', 'Node.js'] }
-      ]),
-      email: 'eyobedeliast@gmail.com',
-      github: 'https://github.com/eyobed101',
-      linkedin: 'https://www.linkedin.com/in/eyobed-e-61b39b194',
-      twitter: 'https://twitter.com/eyobedelias',
-      instagram: 'https://www.instagram.com/eyobed',
-      codepen: 'https://codepen.io/eyobed101',
-      resumeUrl: null
-    }, 'DatabaseProfile');
+  // Use fallback data for build nodes to ensure stable schema and page creation
+  // Components will fetch live data at runtime via TanStack Query
+  fallbackProjects.forEach(p => createDatabaseNode(p, 'DatabaseProject'));
+  fallbackFeatured.forEach(f => createDatabaseNode(f, 'DatabaseFeatured'));
+  fallbackJobs.forEach(j => createDatabaseNode(j, 'DatabaseJob'));
+  fallbackPosts.forEach(p => createDatabaseNode(p, 'DatabasePost'));
+  if (fallbackProfile) {
+    createDatabaseNode(fallbackProfile, 'DatabaseProfile');
   }
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Link, useStaticQuery, graphql } from 'gatsby';
+import { Link } from 'gatsby';
 import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
@@ -149,36 +149,16 @@ const StyledPost = styled.li`
   }
 `;
 
+import { posts as fallbackPosts } from '../../fallbackData';
+
 const Blog = () => {
-  const buildData = useStaticQuery(graphql`
-    query {
-      posts: allDatabasePost(
-        filter: { draft: { ne: true } }
-        sort: { fields: [date], order: DESC }
-        limit: 4
-      ) {
-        edges {
-          node {
-            title
-            description
-            slug
-            date
-            tags
-          }
-        }
-      }
-    }
-  `);
-
-  const initialPosts = buildData.posts.edges.map(({ node }) => node);
-
-  const { data: postsList = initialPosts } = useQuery(['recent-posts'], async () => {
+  const { data: postsList = fallbackPosts } = useQuery(['recent-posts'], async () => {
     const res = await api.get('/api/posts');
     const allPosts = res.data;
     // Filter out drafts and limit to 4
     return allPosts.filter(p => !p.draft).slice(0, 4);
   }, {
-    initialData: initialPosts,
+    initialData: fallbackPosts,
   });
 
   const posts = postsList;

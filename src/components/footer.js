@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from '@components/icons';
@@ -69,35 +68,19 @@ const StyledCredit = styled.div`
   }
 `;
 
-const Footer = () => {
-  const buildData = useStaticQuery(graphql`
-    query {
-      allDatabaseProfile {
-        edges {
-          node {
-            github
-            linkedin
-            twitter
-            instagram
-            codepen
-          }
-        }
-      }
-    }
-  `);
+import { profile as fallbackProfile } from '../fallbackData';
 
+const Footer = () => {
   const [githubInfo, setGitHubInfo] = useState({
     stars: null,
     forks: null,
   });
 
-  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
-
-  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
   }, {
-    initialData: initialProfile,
+    initialData: fallbackProfile,
   });
   const socialMedia = [
     { name: 'GitHub', url: profile.github },
