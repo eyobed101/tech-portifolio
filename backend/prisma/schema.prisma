@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id             String  @id @default(uuid())
+  title          String
+  cover          String?
+  github         String?
+  external       String?
+  tech           String  // JSON array as string
+  company        String?
+  showInProjects Boolean @default(true)
+  content        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model FeaturedProject {
+  id        String  @id @default(uuid())
+  title     String
+  cover     String?
+  github    String?
+  external  String?
+  tech      String  // JSON array as string
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Job {
+  id        String  @id @default(uuid())
+  title     String
+  company   String
+  location  String
+  range     String
+  url       String?
+  content   String  // JSON array of strings
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  cover       String?
+  description String?
+  date        DateTime @default(now())
+  draft       Boolean @default(false)
+  slug        String   @unique
+  tags        String // Use JSON string for arrays
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Profile {
+  id           String   @id @default("singleton")
+  name         String
+  intro        String
+  description  String
+  resumeUrl    String?
+  aboutTitle   String?  @default("About Me")
+  aboutContent String?
+  aboutImage   String?
+  aboutSkills  String?  // JSON string
+  email        String?
+  github       String?
+  linkedin     String?
+  twitter      String?
+  instagram    String?
+  codepen      String?
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteMetadata {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String   // JSON string
+  updatedAt   DateTime @updatedAt
+}
