@@ -6,6 +6,8 @@ import { srConfig } from '@config';
 import { KEY_CODES } from '@utils';
 import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 
 const StyledJobsSection = styled.section`
   max-width: 700px;
@@ -165,7 +167,7 @@ const StyledTabPanel = styled.div`
 `;
 
 const Jobs = () => {
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       jobs: allDatabaseJob(sort: { fields: [createdAt], order: DESC }) {
         edges {
@@ -182,7 +184,16 @@ const Jobs = () => {
     }
   `);
 
-  const jobsData = data.jobs.edges;
+  const initialJobs = buildData.jobs.edges.map(({ node }) => node);
+
+  const { data: jobsList = initialJobs } = useQuery(['jobs'], async () => {
+    const res = await api.get('/api/jobs');
+    return res.data;
+  }, {
+    initialData: initialJobs,
+  });
+
+  const jobsData = jobsList;
 
   const [activeTabId, setActiveTabId] = useState(0);
   const [tabFocus, setTabFocus] = useState(null);
@@ -244,7 +255,7 @@ const Jobs = () => {
       <div className="inner">
         <StyledTabList role="tablist" aria-label="Job tabs" onKeyDown={e => onKeyDown(e)}>
           {jobsData &&
-            jobsData.map(({ node }, i) => {
+            jobsData.map((node, i) => {
               const { company } = node;
               return (
                 <StyledTabButton
@@ -266,7 +277,7 @@ const Jobs = () => {
 
         <StyledTabPanels>
           {jobsData &&
-            jobsData.map(({ node }, i) => {
+            jobsData.map((node, i) => {
               const { title, url, company, range, content } = node;
               const points = JSON.parse(content);
 

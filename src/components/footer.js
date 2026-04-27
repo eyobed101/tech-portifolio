@@ -3,6 +3,8 @@ import { useStaticQuery, graphql } from 'gatsby';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from '@components/icons';
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
 
 const StyledFooter = styled.footer`
   ${({ theme }) => theme.mixins.flexCenter};
@@ -68,7 +70,7 @@ const StyledCredit = styled.div`
 `;
 
 const Footer = () => {
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       allDatabaseProfile {
         edges {
@@ -89,7 +91,14 @@ const Footer = () => {
     forks: null,
   });
 
-  const profile = data.allDatabaseProfile.edges[0]?.node || {};
+  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
+
+  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  }, {
+    initialData: initialProfile,
+  });
   const socialMedia = [
     { name: 'GitHub', url: profile.github },
     { name: 'Linkedin', url: profile.linkedin },

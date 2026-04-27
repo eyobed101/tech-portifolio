@@ -6,6 +6,8 @@ import { srConfig } from '@config';
 import sr from '@utils/sr';
 import { Icon } from '@components/icons';
 import { usePrefersReducedMotion } from '@hooks';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 
 const StyledProjectsSection = styled.section`
   display: flex;
@@ -166,7 +168,7 @@ const StyledProject = styled.li`
 `;
 
 const Projects = () => {
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       projects: allDatabaseProject(
         filter: { showInProjects: { ne: false } }
@@ -179,11 +181,21 @@ const Projects = () => {
             github
             external
             content
+            showInProjects
           }
         }
       }
     }
   `);
+
+  const initialProjectsData = buildData.projects.edges.map(({ node }) => node);
+
+  const { data: allProjects = initialProjectsData } = useQuery(['projects'], async () => {
+    const res = await api.get('/api/projects');
+    return res.data.filter(p => p.showInProjects !== false);
+  }, {
+    initialData: initialProjectsData,
+  });
 
   const [showMore, setShowMore] = useState(false);
   const revealTitle = useRef(null);
@@ -202,9 +214,8 @@ const Projects = () => {
   }, []);
 
   const GRID_LIMIT = 6;
-  const projects = data.projects.edges.filter(({ node }) => node);
-  const firstSix = projects.slice(0, GRID_LIMIT);
-  const projectsToShow = showMore ? projects : firstSix;
+  const firstSix = allProjects.slice(0, GRID_LIMIT);
+  const projectsToShow = showMore ? allProjects : firstSix;
 
   const projectInner = node => {
     const { github, external, title, tech, content } = node;
@@ -270,14 +281,14 @@ const Projects = () => {
         {prefersReducedMotion ? (
           <>
             {projectsToShow &&
-              projectsToShow.map(({ node }, i) => (
+              projectsToShow.map((node, i) => (
                 <StyledProject key={i}>{projectInner(node)}</StyledProject>
               ))}
           </>
         ) : (
           <TransitionGroup component={null}>
             {projectsToShow &&
-              projectsToShow.map(({ node }, i) => (
+              projectsToShow.map((node, i) => (
                 <CSSTransition
                   key={i}
                   classNames="fadeup"

@@ -6,6 +6,8 @@ import styled, { keyframes } from 'styled-components';
 import { navDelay, loaderDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
 import anime from 'animejs';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 
 // New continuous wave animation for text
 const waveAnimation = keyframes`
@@ -349,7 +351,7 @@ const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       allDatabaseProfile {
         edges {
@@ -363,11 +365,18 @@ const Hero = () => {
     }
   `);
 
-  const profile = data.allDatabaseProfile.edges[0]?.node || {
+  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {
     name: 'Eyobed Elias.',
     intro: 'I build secure digital experiences.',
     description: "I'm a software developer and CTO specializing in building secure, scalable systems across multiple platforms.",
   };
+
+  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  }, {
+    initialData: initialProfile,
+  });
 
   useEffect(() => {
     if (prefersReducedMotion) {

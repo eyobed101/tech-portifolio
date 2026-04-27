@@ -5,6 +5,8 @@ import { srConfig } from '@config';
 import sr from '@utils/sr';
 import { Icon } from '@components/icons';
 import { usePrefersReducedMotion } from '@hooks';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 
 const StyledBlogSection = styled.section`
   display: flex;
@@ -148,7 +150,7 @@ const StyledPost = styled.li`
 `;
 
 const Blog = () => {
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       posts: allDatabasePost(
         filter: { draft: { ne: true } }
@@ -168,6 +170,19 @@ const Blog = () => {
     }
   `);
 
+  const initialPosts = buildData.posts.edges.map(({ node }) => node);
+
+  const { data: postsList = initialPosts } = useQuery(['recent-posts'], async () => {
+    const res = await api.get('/api/posts');
+    const allPosts = res.data;
+    // Filter out drafts and limit to 4
+    return allPosts.filter(p => !p.draft).slice(0, 4);
+  }, {
+    initialData: initialPosts,
+  });
+
+  const posts = postsList;
+
   const revealTitle = useRef(null);
   const revealArchiveLink = useRef(null);
   const revealPosts = useRef([]);
@@ -181,8 +196,6 @@ const Blog = () => {
     revealPosts.current.forEach((ref, i) => sr.reveal(ref, srConfig(i * 100)));
   }, []);
 
-  const posts = data.posts.edges;
-
   return (
     <StyledBlogSection id="blog">
       <h2 ref={revealTitle}>Latest from my Blog</h2>
@@ -192,7 +205,7 @@ const Blog = () => {
 
       <ul className="projects-grid">
         {posts.length > 0 &&
-          posts.map(({ node }, i) => {
+          posts.map((node, i) => {
             const { title, description, slug, date, tags } = node;
 
             let parsedTags = [];

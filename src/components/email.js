@@ -3,6 +3,8 @@ import { useStaticQuery, graphql } from 'gatsby';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Side } from '@components';
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
 
 const StyledLinkWrapper = styled.div`
   display: flex;
@@ -36,7 +38,7 @@ const StyledLinkWrapper = styled.div`
 `;
 
 const Email = ({ isHome }) => {
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       allDatabaseProfile {
         edges {
@@ -48,7 +50,14 @@ const Email = ({ isHome }) => {
     }
   `);
 
-  const email = data.allDatabaseProfile.edges[0]?.node?.email || 'eyobedeliast@gmail.com';
+  const initialEmail = buildData.allDatabaseProfile.edges[0]?.node?.email || 'eyobedeliast@gmail.com';
+
+  const { data: profile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  });
+
+  const email = profile?.email || initialEmail;
 
   return (
     <Side isHome={isHome} orientation="right">

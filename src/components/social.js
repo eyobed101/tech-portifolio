@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Side } from '@components';
 import { Icon } from '@components/icons';
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
 
 const StyledSocialList = styled.ul`
   display: flex;
@@ -44,7 +46,7 @@ const StyledSocialList = styled.ul`
 `;
 
 const Social = ({ isHome }) => {
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       allDatabaseProfile {
         edges {
@@ -60,7 +62,14 @@ const Social = ({ isHome }) => {
     }
   `);
 
-  const profile = data.allDatabaseProfile.edges[0]?.node || {};
+  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
+
+  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  }, {
+    initialData: initialProfile,
+  });
   const socialMedia = [
     { name: 'GitHub', url: profile.github },
     { name: 'Linkedin', url: profile.linkedin },

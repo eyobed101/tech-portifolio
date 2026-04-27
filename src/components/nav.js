@@ -8,6 +8,8 @@ import { loaderDelay } from '@utils';
 import { useScrollDirection, usePrefersReducedMotion } from '@hooks';
 import { Menu } from '@components';
 import { IconLogo, IconHex } from '@components/icons';
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
 
 const StyledHeader = styled.header`
   ${({ theme }) => theme.mixins.flexBetween};
@@ -156,7 +158,7 @@ const Nav = ({ isHome }) => {
   const [scrolledToTop, setScrolledToTop] = useState(true);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       allDatabaseProfile {
         edges {
@@ -174,7 +176,15 @@ const Nav = ({ isHome }) => {
     }
   `);
 
-  const profile = data.allDatabaseProfile.edges[0]?.node || {};
+  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
+
+  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  }, {
+    initialData: initialProfile,
+  });
+
   const resumeUrl = profile.resumeUrl || '/resume.pdf';
 
   const handleScroll = () => {

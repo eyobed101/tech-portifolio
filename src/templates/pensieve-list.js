@@ -6,6 +6,8 @@ import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { Layout } from '@components';
 import { IconBookmark } from '@components/icons';
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
 
 const StyledMainContainer = styled.main`
   & > header {
@@ -163,8 +165,19 @@ const StyledPagination = styled.div`
 `;
 
 const PensieveList = ({ location, data, pageContext }) => {
-  const posts = data.allDatabasePost.edges;
-  const { currentPage, numPages } = pageContext;
+  const initialPosts = data.allDatabasePost.edges.map(({ node }) => node);
+  const { currentPage, numPages, limit, skip } = pageContext;
+
+  const { data: postsList = initialPosts } = useQuery(['posts', currentPage], async () => {
+    const res = await api.get('/api/posts');
+    const allPosts = res.data.filter(p => !p.draft).sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Slicing on client side to match Gatsby's pagination
+    return allPosts.slice(skip, skip + limit);
+  }, {
+    initialData: initialPosts,
+  });
+
+  const posts = postsList;
 
   const isFirst = currentPage === 1;
   const isLast = currentPage === numPages;
@@ -187,7 +200,7 @@ const PensieveList = ({ location, data, pageContext }) => {
 
         <StyledGrid>
           {posts.length > 0 &&
-            posts.map(({ node }, i) => {
+            posts.map((node, i) => {
               const { title, description, slug, date, tags } = node;
               const formattedDate = new Date(date).toLocaleDateString();
               let parsedTags = [];

@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 
 const StyledContactSection = styled.section`
   max-width: 600px;
@@ -46,7 +48,7 @@ const Contact = () => {
   const revealContainer = useRef(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       allDatabaseProfile {
         edges {
@@ -58,7 +60,14 @@ const Contact = () => {
     }
   `);
 
-  const email = data.allDatabaseProfile.edges[0]?.node?.email || 'eyobedeliast@gmail.com';
+  const initialEmail = buildData.allDatabaseProfile.edges[0]?.node?.email || 'eyobedeliast@gmail.com';
+
+  const { data: profile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  });
+
+  const email = profile?.email || initialEmail;
 
   useEffect(() => {
     if (prefersReducedMotion) {

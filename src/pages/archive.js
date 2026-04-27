@@ -8,6 +8,8 @@ import sr from '@utils/sr';
 import { Layout } from '@components';
 import { Icon } from '@components/icons';
 import { usePrefersReducedMotion } from '@hooks';
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
 
 const StyledTableContainer = styled.div`
   margin: 100px -20px;
@@ -130,7 +132,14 @@ const StyledTableContainer = styled.div`
 `;
 
 const ArchivePage = ({ location, data }) => {
-  const projects = data.allMarkdownRemark.edges;
+  const initialProjects = data.allDatabaseProject.edges.map(({ node }) => node);
+
+  const { data: projects = initialProjects } = useQuery(['projects'], async () => {
+    const res = await api.get('/api/projects');
+    return res.data;
+  }, {
+    initialData: initialProjects,
+  });
   const revealTitle = useRef(null);
   const revealTable = useRef(null);
   const revealProjects = useRef([]);
@@ -169,7 +178,7 @@ const ArchivePage = ({ location, data }) => {
             </thead>
             <tbody>
               {projects.length > 0 &&
-                projects.map(({ node }, i) => {
+                projects.map((node, i) => {
                   const {
                     date,
                     github,
@@ -179,7 +188,8 @@ const ArchivePage = ({ location, data }) => {
                     title,
                     tech,
                     company,
-                  } = node.frontmatter;
+                  } = node;
+                  const techList = typeof tech === 'string' ? JSON.parse(tech) : tech;
                   return (
                     <tr key={i} ref={el => (revealProjects.current[i] = el)}>
                       <td className="overline year">{`${new Date(date).getFullYear()}`}</td>
@@ -191,12 +201,12 @@ const ArchivePage = ({ location, data }) => {
                       </td>
 
                       <td className="tech hide-on-mobile">
-                        {tech?.length > 0 &&
-                          tech.map((item, i) => (
+                        {techList?.length > 0 &&
+                          techList.map((item, i) => (
                             <span key={i}>
                               {item}
                               {''}
-                              {i !== tech.length - 1 && <span className="separator">&middot;</span>}
+                              {i !== techList.length - 1 && <span className="separator">&middot;</span>}
                             </span>
                           ))}
                       </td>
@@ -244,23 +254,17 @@ export default ArchivePage;
 
 export const pageQuery = graphql`
   {
-    allMarkdownRemark(
-      filter: { fileAbsolutePath: { regex: "/content/projects/" } }
-      sort: { fields: [frontmatter___date], order: DESC }
-    ) {
+    allDatabaseProject(sort: { fields: [date], order: DESC }) {
       edges {
         node {
-          frontmatter {
-            date
-            title
-            tech
-            github
-            external
-            ios
-            android
-            company
-          }
-          html
+          date
+          title
+          tech
+          github
+          external
+          ios
+          android
+          company
         }
       }
     }

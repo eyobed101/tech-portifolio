@@ -6,6 +6,8 @@ import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { Layout } from '@components';
 import { Icon } from '@components/icons';
+import { useQuery } from '@tanstack/react-query';
+import api from '../api';
 
 const StyledPostContainer = styled.main`
   max-width: 1000px;
@@ -100,7 +102,19 @@ const StyledShare = styled.div`
 `;
 
 const PostTemplate = ({ data, location }) => {
-  const { title, date, tags, content, description, cover } = data.databasePost;
+  const initialPost = data.databasePost;
+  const slug = initialPost.slug;
+
+  const { data: post = initialPost } = useQuery(['post', slug], async () => {
+    const res = await api.get(`/api/posts`);
+    // Find the post by slug since we don't have a single-post endpoint yet
+    // Or I should implement a single-post endpoint in the backend for better performance
+    return res.data.find(p => p.slug === slug || p.slug === slug.replace(/^\//, '') || ('/' + p.slug === slug));
+  }, {
+    initialData: initialPost,
+  });
+
+  const { title, date, tags, content, description, cover } = post;
   let tagsList = [];
   try {
     tagsList = JSON.parse(tags);

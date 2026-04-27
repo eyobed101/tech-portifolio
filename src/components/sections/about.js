@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 
 // ... (Styles remains same)
 
@@ -214,7 +216,7 @@ const About = () => {
   const revealContainer = useRef(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     query {
       allDatabaseProfile {
         edges {
@@ -229,7 +231,15 @@ const About = () => {
     }
   `);
 
-  const profile = data.allDatabaseProfile.edges[0]?.node || {};
+  const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {};
+
+  const { data: profile = initialProfile } = useQuery(['profile'], async () => {
+    const res = await api.get('/api/profile');
+    return res.data;
+  }, {
+    initialData: initialProfile,
+  });
+
   const aboutTitle = profile.aboutTitle || 'About Me';
   const aboutContent = profile.aboutContent || 'Hello! I am a developer who crafts digital experiences with purpose.';
   const aboutImage = profile.aboutImage;

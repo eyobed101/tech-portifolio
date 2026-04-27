@@ -6,6 +6,8 @@ import sr from '@utils/sr';
 import { srConfig } from '@config';
 import { Icon } from '@components/icons';
 import { usePrefersReducedMotion } from '@hooks';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 
 const StyledProjectsGrid = styled.ul`
   ${({ theme }) => theme.mixins.resetList};
@@ -304,7 +306,7 @@ const StyledProject = styled.li`
 `;
 
 const Featured = () => {
-  const data = useStaticQuery(graphql`
+  const buildData = useStaticQuery(graphql`
     {
       featured: allDatabaseFeatured(sort: { fields: [createdAt], order: ASC }) {
         edges {
@@ -321,7 +323,14 @@ const Featured = () => {
     }
   `);
 
-  const featuredProjects = data.featured.edges.filter(({ node }) => node);
+  const initialFeatured = buildData.featured.edges.map(({ node }) => node);
+
+  const { data: featuredProjects = initialFeatured } = useQuery(['featured'], async () => {
+    const res = await api.get('/api/featured');
+    return res.data;
+  }, {
+    initialData: initialFeatured,
+  });
   const revealTitle = useRef(null);
   const revealProjects = useRef([]);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -343,7 +352,7 @@ const Featured = () => {
 
       <StyledProjectsGrid>
         {featuredProjects &&
-          featuredProjects.map(({ node }, i) => {
+          featuredProjects.map((node, i) => {
             const { external, title, tech, github, cover, content } = node;
             const techList = JSON.parse(tech);
 
