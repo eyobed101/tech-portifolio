@@ -4,6 +4,7 @@ const variables = css`
   :root {
     --dark-navy: #020c1b;
     --navy: #0a192f;
+    --nav-bg: rgba(10, 25, 47, 0.85);
     --light-navy: #112240;
     --lightest-navy: #233554;
     --navy-shadow: rgba(2, 12, 27, 0.7);
@@ -52,6 +53,7 @@ const variables = css`
   [data-theme='light'] {
     --dark-navy: #e6f1ff;
     --navy: #f3f5f9;
+    --nav-bg: rgba(243, 245, 249, 0.85);
     --light-navy: #ffffff;
     --lightest-navy: #e2e8f0;
     --navy-shadow: rgba(2, 12, 27, 0.1);
