@@ -107,6 +107,8 @@ exports.createSchemaCustomization = ({ actions }) => {
       twitter: String
       instagram: String
       codepen: String
+      createdAt: Date @dateformat
+      updatedAt: Date @dateformat
     }
 
     type DatabaseProject implements Node {
@@ -118,6 +120,8 @@ exports.createSchemaCustomization = ({ actions }) => {
       company: String
       showInProjects: Boolean
       content: String
+      createdAt: Date @dateformat
+      updatedAt: Date @dateformat
     }
 
     type DatabaseFeatured implements Node {
@@ -127,6 +131,8 @@ exports.createSchemaCustomization = ({ actions }) => {
       external: String
       tech: String
       content: String
+      createdAt: Date @dateformat
+      updatedAt: Date @dateformat
     }
 
     type DatabaseJob implements Node {
@@ -136,6 +142,8 @@ exports.createSchemaCustomization = ({ actions }) => {
       range: String
       url: String
       content: String
+      createdAt: Date @dateformat
+      updatedAt: Date @dateformat
     }
 
     type DatabasePost implements Node {
@@ -147,6 +155,8 @@ exports.createSchemaCustomization = ({ actions }) => {
       tags: String
       content: String
       cover: String
+      createdAt: Date @dateformat
+      updatedAt: Date @dateformat
     }
   `;
   createTypes(typeDefs);
