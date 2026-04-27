@@ -6,6 +6,7 @@ import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
+import ThreeDTerminal from '../ThreeDTerminal';
 
 const StyledContactSection = styled.section`
   max-width: 600px;
@@ -41,6 +42,14 @@ const StyledContactSection = styled.section`
   .email-link {
     ${({ theme }) => theme.mixins.bigButton};
     margin-top: 50px;
+    margin-bottom: 70px;
+  }
+  
+  .terminal-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
   }
 `;
 
@@ -92,6 +101,10 @@ const Contact = () => {
       <a className="email-link" href={`mailto:${email}`}>
         Say Hello
       </a>
+
+      <div className="terminal-wrapper">
+        <ThreeDTerminal />
+      </div>
     </StyledContactSection>
   );
 };

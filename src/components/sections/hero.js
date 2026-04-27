@@ -35,22 +35,23 @@ const StyledHeroSection = styled.section`
   height: 100vh;
   padding: 0;
   position: relative;
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: space-between !important;
-  align-items: center !important;
 
   .hero-content {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     max-width: 700px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
   }
 
   .hero-3d {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 0;
     @media (max-width: 768px) {
       display: none;
     }
@@ -137,26 +138,26 @@ const StyledHeroSection = styled.section`
 
 const typewriterAnimation = keyframes`
   from { width: 0; }
-  to { width: 100%; }
+  to { width: 100 %; }
 `;
 
 const cursorAnimation = keyframes`
-  0% { border-right-color: rgba(255, 255, 255, 0.75); }
-  100% { border-right-color: transparent; }
+0 % { border- right - color: rgba(255, 255, 255, 0.75); }
+100 % { border- right - color: transparent; }
 `;
 
 const LoopingTypewriter = styled.h3`
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 2px solid rgba(255, 255, 255, 0.75);
-  letter-spacing: 0.05em;
-  animation: ${typewriterAnimation} 4s steps(40) 1s forwards,
-    ${cursorAnimation} 750ms steps(40) infinite;
+display: inline - block;
+overflow: hidden;
+white - space: nowrap;
+border - right: 2px solid rgba(255, 255, 255, 0.75);
+letter - spacing: 0.05em;
+animation: ${typewriterAnimation} 4s steps(40) 1s forwards,
+  ${cursorAnimation} 750ms steps(40) infinite;
 
   &.reset {
-    animation: none;
-  }
+  animation: none;
+}
 `;
 
 const WaveText = ({ text, className, as: Component = 'h3' }) => {
@@ -199,7 +200,7 @@ const WaveText = ({ text, className, as: Component = 'h3' }) => {
     });
   }, [text, prefersReducedMotion]);
 
-  return <Component ref={textRef} className={`${className} wave-text`} />;
+  return <Component ref={textRef} className={`${className} wave - text`} />;
 };
 
 WaveText.propTypes = {
@@ -278,59 +279,6 @@ AnimatedText.propTypes = {
   as: PropTypes.string,
 };
 
-const floatAnimation = keyframes`
-  0% { transform: translateY(-50%) perspective(1000px) rotateY(-20deg) rotateX(10deg) translateZ(0px); box-shadow: -20px 20px 40px -15px var(--navy-shadow); }
-  50% { transform: translateY(-53%) perspective(1000px) rotateY(-16deg) rotateX(12deg) translateZ(10px); box-shadow: -25px 25px 50px -15px var(--navy-shadow); }
-  100% { transform: translateY(-50%) perspective(1000px) rotateY(-20deg) rotateX(10deg) translateZ(0px); box-shadow: -20px 20px 40px -15px var(--navy-shadow); }
-`;
-
-const ThreeDTerminal = styled.div`
-  position: absolute;
-  right: 0;
-  top: 50%;
-  width: 320px;
-  background-color: #0b1120;
-  border-radius: 8px;
-  border: 1px solid var(--lightest-navy);
-  padding: 20px;
-  z-index: 10;
-  animation: ${floatAnimation} 6s ease-in-out infinite;
-  transform-style: preserve-3d;
-  opacity: 0;
-  animation-fill-mode: forwards;
-
-  @media (max-width: 1080px) {
-    display: none;
-  }
-
-  .mac-buttons {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    span {
-      display: block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: #ff5f56;
-      &:nth-child(2) { background-color: #ffbd2e; }
-      &:nth-child(3) { background-color: #27c93f; }
-    }
-  }
-
-  .code {
-    font-family: var(--font-mono);
-    font-size: var(--fz-xs);
-    color: var(--light-slate);
-    line-height: 1.8;
-
-    .keyword { color: #c678dd; }
-    .function { color: #61afef; }
-    .string { color: #98c379; }
-    .comment { color: #5c6370; font-style: italic; }
-  }
-`;
-
 const TypewriterComponent = ({ text, className, as: Component = 'h3' }) => {
   const [key, setKey] = useState(0);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -377,14 +325,14 @@ const Hero = () => {
       allDatabaseProfile {
         edges {
           node {
-            name
-            intro
-            description
-          }
-        }
+        name
+        intro
+        description
       }
     }
-  `);
+  }
+}
+`);
 
   const initialProfile = buildData.allDatabaseProfile.edges[0]?.node || {
     name: 'Eyobed Elias.',
@@ -437,27 +385,7 @@ const Hero = () => {
     </a>
   );
 
-  const seven = (
-    <ThreeDTerminal style={{ opacity: 1 }}>
-      <div className="mac-buttons">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="code">
-        <span className="comment">// Crafting digital experiences</span><br />
-        <span className="keyword">const</span> dev <span className="keyword">=</span> {'{'}<br />
-        &nbsp;&nbsp;name: <span className="string">'Eyobed Elias'</span>,<br />
-        &nbsp;&nbsp;focus: [<span className="string">'Security'</span>, <span className="string">'Scalability'</span>],<br />
-        &nbsp;&nbsp;<span className="function">build</span>: () <span className="keyword">=&gt;</span> <span className="string">"World-class software"</span><br />
-        {'}'};<br />
-        <br />
-        <span className="function">dev.build</span>();
-      </div>
-    </ThreeDTerminal>
-  );
-
-  const items = [one, two, three, four, five, six, seven];
+  const items = [one, two, three, four, five, six];
 
   return (
     <StyledHeroSection id="hero">
