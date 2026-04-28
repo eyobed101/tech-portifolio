@@ -24,5 +24,5 @@ const IndexPage = ({ location }) => (
 IndexPage.propTypes = {
   location: PropTypes.object.isRequired,
 };
-e
+
 export default IndexPage;
