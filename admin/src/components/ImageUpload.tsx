@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { getImageUrl } from '../utils/url';
 import { useAuth } from '../context/AuthContext';
 
 interface ImageUploadProps {
@@ -48,7 +49,7 @@ export default function ImageUpload({ value, onChange, label = 'Cover Image' }: 
 
             {value ? (
                 <div className="relative group rounded-2xl overflow-hidden border border-[#1f2937] aspect-video bg-[#0e121a]">
-                    <img src={value} alt="Preview" className="w-full h-full object-cover" />
+                    <img src={getImageUrl(value)} alt="Preview" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <button
                             onClick={() => onChange('')}

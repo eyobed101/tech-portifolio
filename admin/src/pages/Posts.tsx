@@ -4,6 +4,7 @@ import Modal from '../components/Modal';
 import PostForm from '../components/PostForm';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../config';
+import { getImageUrl } from '../utils/url';
 
 interface Post {
     id: string;
@@ -101,7 +102,7 @@ export default function PostsPage() {
                                         <div className="flex items-center">
                                             {post.cover ? (
                                                 <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#1f2937] mr-3 flex-shrink-0">
-                                                    <img src={post.cover} alt="" className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(post.cover)} alt="" className="w-full h-full object-cover" />
                                                 </div>
                                             ) : (
                                                 <FileText className="w-4 h-4 mr-3 text-gray-500" />

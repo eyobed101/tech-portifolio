@@ -4,6 +4,7 @@ import Modal from '../components/Modal';
 import ProjectForm from '../components/ProjectForm';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../config';
+import { getImageUrl } from '../utils/url';
 
 interface Project {
     id: string;
@@ -100,7 +101,7 @@ export default function ProjectsPage() {
                                         <div className="flex items-center space-x-3">
                                             {project.cover && (
                                                 <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#1f2937] flex-shrink-0">
-                                                    <img src={project.cover} alt="" className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(project.cover)} alt="" className="w-full h-full object-cover" />
                                                 </div>
                                             )}
                                             <div>
