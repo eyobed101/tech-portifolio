@@ -17,13 +17,36 @@ const animStar = keyframes`
 const generateBoxShadows = n => {
   let value = '';
   for (let i = 0; i < n; i++) {
-    value += `${Math.floor(Math.random() * 2000)}px ${Math.floor(Math.random() * 2000)}px #FFF`;
+    value += `${Math.floor(Math.random() * 2000)}px ${Math.floor(Math.random() * 2000)}px var(--star-color)`;
     if (i < n - 1) {
       value += ', ';
     }
   }
   return value;
 };
+
+const gradientMotion = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const GradientBackground = styled.div`
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: var(--bg-gradient);
+  background-size: 400% 400%;
+  animation: ${gradientMotion} 15s ease infinite;
+
+  [data-theme='light'] & {
+    display: block;
+  }
+`;
 
 const Stars = styled.div`
   position: fixed;
@@ -32,6 +55,10 @@ const Stars = styled.div`
   width: 100%;
   height: 100%;
   z-index: -1;
+
+  [data-theme='light'] & {
+    display: none;
+  }
 `;
 
 const Stars1 = styled.div`
@@ -137,6 +164,7 @@ const Layout = ({ children, location }) => {
       <div id="root">
         <ThemeProvider theme={theme}>
           <GlobalStyle />
+          <GradientBackground />
           <Stars>
             <Stars1 />
             <Stars2 />

@@ -15,6 +15,7 @@ const variables = css`
     --white: #e6f1ff;
     --green: #64ffda;
     --green-tint: rgba(100, 255, 218, 0.1);
+    --star-color: #FFF;
     --pink: #f57dff;
     --blue: #57cbff;
 
@@ -64,6 +65,8 @@ const variables = css`
     --white: #020c1b;
     --green: #00a67d;
     --green-tint: rgba(0, 166, 125, 0.1);
+    --star-color: #475569;
+    --bg-gradient: linear-gradient(-45deg, #f8fafc, #f1f5f9, #e2e8f0, #f8fafc);
   }
 `;
 
