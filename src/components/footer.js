@@ -15,14 +15,17 @@ const StyledFooter = styled.footer`
 `;
 
 const StyledSocialLinks = styled.div`
-  display: none;
+  display: block;
+  width: 100%;
+  max-width: 270px;
+  margin: 0 auto 10px;
+  color: var(--light-slate);
 
-  @media (max-width: 768px) {
-    display: block;
-    width: 100%;
-    max-width: 270px;
-    margin: 0 auto 10px;
-    color: var(--light-slate);
+  .get-in-touch {
+    margin-bottom: 20px;
+    font-family: var(--font-mono);
+    font-size: var(--fz-xs);
+    color: var(--green);
   }
 
   ul {
@@ -86,6 +89,7 @@ const Footer = () => {
     { name: 'Twitter', url: profile.twitter },
     { name: 'Instagram', url: profile.instagram },
     { name: 'Codepen', url: profile.codepen },
+    { name: 'Email', url: `mailto:${profile.email || fallbackProfile.email}` },
   ].filter(s => s.url);
 
   useEffect(() => {
@@ -107,6 +111,7 @@ const Footer = () => {
   return (
     <StyledFooter>
       <StyledSocialLinks>
+        <div className="get-in-touch">Get In Touch</div>
         <ul>
           {socialMedia &&
             socialMedia.map(({ name, url }, i) => (
@@ -119,22 +124,22 @@ const Footer = () => {
         </ul>
       </StyledSocialLinks>
 
-      <StyledCredit tabindex="-1">
+      <StyledCredit tabIndex="-1">
         <a href="https://github.com/eyobed101/v4">
-          {/* <div>Designed &amp; Built by B</div> */}
+          <div>Designed &amp; Built by Eyobed Elias</div>
 
-          {githubInfo.stars && githubInfo.forks && (
+          {githubInfo.stars > 0 || githubInfo.forks > 0 ? (
             <div className="github-stats">
-              {/* <span>
+              <span>
                 <Icon name="Star" />
                 <span>{githubInfo.stars.toLocaleString()}</span>
               </span>
               <span>
                 <Icon name="Fork" />
                 <span>{githubInfo.forks.toLocaleString()}</span>
-              </span> */}
+              </span>
             </div>
-          )}
+          ) : null}
         </a>
       </StyledCredit>
     </StyledFooter>

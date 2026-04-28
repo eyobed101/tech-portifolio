@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled, { ThemeProvider, keyframes } from 'styled-components';
-import { Head, Loader, Nav, Social, Email, Footer } from '@components';
+import { Head, Loader, Nav, Social, Email, Footer, Contact } from '@components';
 import { GlobalStyle, theme } from '@styles';
 
 // Starry background components
@@ -157,6 +157,7 @@ const Layout = ({ children, location }) => {
 
               <div id="content">
                 {children}
+                <Contact />
                 <Footer />
               </div>
             </StyledContent>

@@ -411,7 +411,7 @@ const Hero = () => {
   );
 
   const six = (
-    <a className="email-link" href="mailto:eyobedeliast@gmail.com" target="_blank" rel="noreferrer">
+    <a className="email-link" href={`mailto:${profile.email || fallbackProfile.email}`} target="_blank" rel="noreferrer">
       Get In Touch
     </a>
   );
