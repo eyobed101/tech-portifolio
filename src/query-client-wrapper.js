@@ -1,11 +1,16 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 
 const queryClient = new QueryClient({
+    queryCache: new QueryCache({
+        onError: (err) => {
+            console.error('TanStack Query Error:', err);
+        },
+    }),
     defaultOptions: {
         queries: {
             refetchOnWindowFocus: false,
-            staleTime: 1000 * 60 * 5, // 5 minutes
+            staleTime: 0,
         },
     },
 });

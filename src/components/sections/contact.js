@@ -58,11 +58,9 @@ const Contact = () => {
   const revealContainer = useRef(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
+  const { data: profile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
-  }, {
-    initialData: fallbackProfile,
   });
 
   const email = profile?.email || fallbackProfile.email;
@@ -90,8 +88,6 @@ const Contact = () => {
       <a className="email-link" href={`mailto:${email}`}>
         Say Hello
       </a>
-
-
     </StyledContactSection>
   );
 };

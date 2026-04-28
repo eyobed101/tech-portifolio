@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useStaticQuery, graphql } from 'gatsby';
 import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
 import { srConfig } from '@config';
@@ -172,8 +171,6 @@ const Jobs = () => {
   const { data: jobsList = fallbackJobs } = useQuery(['jobs'], async () => {
     const res = await api.get('/api/jobs');
     return res.data;
-  }, {
-    initialData: fallbackJobs,
   });
 
   const jobsData = jobsList;

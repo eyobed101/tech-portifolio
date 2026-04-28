@@ -57,21 +57,14 @@ const TagTemplate = ({ pageContext, data, location }) => {
     const res = await api.get('/api/posts');
     const allPosts = res.data.filter(p => !p.draft);
     return allPosts.filter(p => {
-        let tagsList = [];
-        try {
-            tagsList = JSON.parse(p.tags || '[]');
-        } catch (e) {
-            tagsList = p.tags ? p.tags.split(',').map(t => t.trim()) : [];
-        }
-        return tagsList.includes(tag);
+      let tagsList = [];
+      try {
+        tagsList = JSON.parse(p.tags || '[]');
+      } catch (e) {
+        tagsList = p.tags ? p.tags.split(',').map(t => t.trim()) : [];
+      }
+      return tagsList.includes(tag);
     });
-  }, {
-    initialData: buildEdges.map(e => e.node.frontmatter).length > 0 ? buildEdges.map(e => ({
-        title: e.node.frontmatter.title,
-        slug: e.node.frontmatter.slug,
-        date: e.node.frontmatter.date,
-        tags: e.node.frontmatter.tags
-    })) : fallbackPosts.filter(p => p.tags.includes(tag)),
   });
 
   return (

@@ -43,48 +43,43 @@ const TagsPage = ({ data, location }) => {
     const allPosts = res.data.filter(p => !p.draft);
     const tagsMap = {};
     allPosts.forEach(p => {
-        let tagsList = [];
-        try {
-            tagsList = typeof p.tags === 'string' ? JSON.parse(p.tags || '[]') : p.tags;
-        } catch (e) {
-            tagsList = typeof p.tags === 'string' ? p.tags.split(',').map(t => t.trim()) : p.tags || [];
-        }
-        tagsList.forEach(t => {
-            tagsMap[t] = (tagsMap[t] || 0) + 1;
-        });
+      let tagsList = [];
+      try {
+        tagsList = typeof p.tags === 'string' ? JSON.parse(p.tags || '[]') : p.tags;
+      } catch (e) {
+        tagsList = typeof p.tags === 'string' ? p.tags.split(',').map(t => t.trim()) : p.tags || [];
+      }
+      tagsList.forEach(t => {
+        tagsMap[t] = (tagsMap[t] || 0) + 1;
+      });
     });
     return Object.keys(tagsMap).map(tag => ({ fieldValue: tag, totalCount: tagsMap[tag] }));
-  }, {
-    initialData: buildGroup.length > 0 ? buildGroup : (() => {
-        const tagsMap = {};
-        fallbackPosts.forEach(p => p.tags.forEach(t => { tagsMap[t] = (tagsMap[t] || 0) + 1; }));
-        return Object.keys(tagsMap).map(tag => ({ fieldValue: tag, totalCount: tagsMap[tag] }));
-    })(),
   });
 
   return (
     <Layout location={location}>
-    <Helmet title="Tags" />
+      <Helmet title="Tags" />
 
-    <StyledTagsContainer>
-      <span className="breadcrumb">
-        <span className="arrow">&larr;</span>
-        <Link to="/pensieve">All memories</Link>
-      </span>
+      <StyledTagsContainer>
+        <span className="breadcrumb">
+          <span className="arrow">&larr;</span>
+          <Link to="/pensieve">All memories</Link>
+        </span>
 
-      <h1>Tags</h1>
-      <ul className="fancy-list">
-        {group.map(tag => (
-          <li key={tag.fieldValue}>
-            <Link to={`/pensieve/tags/${kebabCase(tag.fieldValue)}/`} className="inline-link">
-              {tag.fieldValue} <span className="count">({tag.totalCount})</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </StyledTagsContainer>
-  </Layout>
-);
+        <h1>Tags</h1>
+        <ul className="fancy-list">
+          {group.map(tag => (
+            <li key={tag.fieldValue}>
+              <Link to={`/pensieve/tags/${kebabCase(tag.fieldValue)}/`} className="inline-link">
+                {tag.fieldValue} <span className="count">({tag.totalCount})</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </StyledTagsContainer>
+    </Layout>
+  );
+};
 
 TagsPage.propTypes = {
   data: PropTypes.shape({

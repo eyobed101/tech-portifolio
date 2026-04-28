@@ -112,7 +112,6 @@ const PostTemplate = ({ data, location }) => {
     const found = res.data.find(p => p.slug === slug || p.slug === slug.replace(/^\//, '') || ('/' + p.slug === slug));
     return found;
   }, {
-    initialData: initialPost || fallbackPosts[0],
     enabled: !!slug,
   });
 

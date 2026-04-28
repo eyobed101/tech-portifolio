@@ -310,8 +310,6 @@ const Featured = () => {
   const { data: featuredProjects = fallbackFeatured } = useQuery(['featured'], async () => {
     const res = await api.get('/api/featured');
     return res.data;
-  }, {
-    initialData: fallbackFeatured,
   });
   const revealTitle = useRef(null);
   const revealProjects = useRef([]);

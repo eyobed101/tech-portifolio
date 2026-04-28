@@ -174,8 +174,6 @@ const PensieveList = ({ location, data, pageContext }) => {
     const res = await api.get('/api/posts');
     const allPosts = res.data.filter(p => !p.draft).sort((a, b) => new Date(b.date) - new Date(a.date));
     return allPosts.slice(skip, skip + limit);
-  }, {
-    initialData: buildPosts.length > 0 ? buildPosts : fallbackPosts,
   });
 
   const posts = postsList;

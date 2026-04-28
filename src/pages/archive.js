@@ -137,8 +137,6 @@ const ArchivePage = ({ location, data }) => {
   const { data: projects = initialProjects } = useQuery(['projects'], async () => {
     const res = await api.get('/api/projects');
     return res.data;
-  }, {
-    initialData: initialProjects,
   });
   const revealTitle = useRef(null);
   const revealTable = useRef(null);

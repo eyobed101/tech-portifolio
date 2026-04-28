@@ -173,8 +173,6 @@ const Projects = () => {
   const { data: allProjects = fallbackProjects } = useQuery(['projects'], async () => {
     const res = await api.get('/api/projects');
     return res.data.filter(p => p.showInProjects !== false);
-  }, {
-    initialData: fallbackProjects,
   });
 
   const [showMore, setShowMore] = useState(false);

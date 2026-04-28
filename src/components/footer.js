@@ -79,8 +79,6 @@ const Footer = () => {
   const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
-  }, {
-    initialData: fallbackProfile,
   });
   const socialMedia = [
     { name: 'GitHub', url: profile.github },

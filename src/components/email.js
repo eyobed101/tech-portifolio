@@ -42,8 +42,6 @@ const Email = ({ isHome }) => {
   const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
-  }, {
-    initialData: fallbackProfile,
   });
 
   const email = profile?.email || fallbackProfile.email;

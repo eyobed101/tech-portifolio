@@ -168,8 +168,6 @@ const Nav = ({ isHome }) => {
   const { data: profile = fallbackProfile } = useQuery(['profile'], async () => {
     const res = await api.get('/api/profile');
     return res.data;
-  }, {
-    initialData: fallbackProfile,
   });
 
   const resumeUrl = profile.resumeUrl || fallbackProfile.resumeUrl || '/resume.pdf';

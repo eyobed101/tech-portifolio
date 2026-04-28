@@ -157,8 +157,6 @@ const Blog = () => {
     const allPosts = res.data;
     // Filter out drafts and limit to 4
     return allPosts.filter(p => !p.draft).slice(0, 4);
-  }, {
-    initialData: fallbackPosts,
   });
 
   const posts = postsList;
