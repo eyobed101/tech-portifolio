@@ -28,16 +28,14 @@ const StyledProject = styled.li`
     ${({ theme }) => theme.mixins.boxShadow};
   }
 
-  &:not(:last-of-type) {
-    margin-bottom: 100px;
+  margin-bottom: 100px;
 
-    @media (max-width: 768px) {
-      margin-bottom: 70px;
-    }
+  @media (max-width: 768px) {
+    margin-bottom: 70px;
+  }
 
-    @media (max-width: 480px) {
-      margin-bottom: 30px;
-    }
+  @media (max-width: 480px) {
+    margin-bottom: 60px;
   }
 
   &:nth-of-type(odd) {
@@ -250,6 +248,10 @@ const StyledProject = styled.li`
 
     @media (max-width: 768px) {
       grid-column: 1 / -1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
       opacity: 0.25;
     }
@@ -296,7 +298,7 @@ const StyledProject = styled.li`
 
       @media (max-width: 768px) {
         object-fit: cover;
-        width: auto;
+        width: 100%;
         height: 100%;
         filter: grayscale(100%) contrast(1) brightness(50%);
       }
