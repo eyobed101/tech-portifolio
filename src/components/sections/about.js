@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { StaticImage } from 'gatsby-plugin-image';
 import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
@@ -7,6 +6,7 @@ import { usePrefersReducedMotion } from '@hooks';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
 import ThreeDBackground from '../ThreeDBackground';
+import TerminalCode from '../TerminalCode';
 
 // ... (Styles remains same)
 
@@ -18,10 +18,25 @@ const StyledAboutSection = styled.section`
     display: grid;
     grid-template-columns: 3fr 2fr;
     gap: 60px;
-    align-items: start; /* Changed to align items at top */
+    align-items: start;
 
     @media (max-width: 768px) {
       display: block;
+    }
+  }
+
+  .terminal-side {
+    position: relative;
+    width: 100%;
+    min-height: 320px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--green-tint);
+    background: rgba(0, 255, 100, 0.03);
+
+    @media (max-width: 768px) {
+      min-height: 220px;
+      margin-top: 40px;
     }
   }
 `;
@@ -295,30 +310,9 @@ const About = () => {
           </div>
         </StyledText>
 
-        <StyledPic>
-          <span className="floating-object" />
-          <span className="floating-object" />
-          <span className="floating-object" />
-          <div className="wrapper">
-            {aboutImage ? (
-              <img
-                className="img"
-                src={aboutImage}
-                alt={aboutTitle}
-                style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
-              />
-            ) : (
-              <StaticImage
-                className="img"
-                src="../../images/me.png"
-                width={600}
-                quality={100}
-                formats={['WEBP', 'AVIF']}
-                alt="Eyobed Elias - Full Stack Developer"
-              />
-            )}
-          </div>
-        </StyledPic>
+        <div className="terminal-side">
+          <TerminalCode />
+        </div>
       </div>
     </StyledAboutSection>
   );

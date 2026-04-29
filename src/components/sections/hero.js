@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { StaticImage } from 'gatsby-plugin-image';
 import PropTypes from 'prop-types';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled, { keyframes } from 'styled-components';
@@ -7,6 +8,7 @@ import { usePrefersReducedMotion } from '@hooks';
 import anime from 'animejs';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
+import { profile as fallbackProfile } from '../../fallbackData';
 
 // New continuous wave animation for text
 const waveAnimation = keyframes`
@@ -52,19 +54,59 @@ const StyledHeroSection = styled.section`
 
   .hero-3d {
     position: relative;
-    width: 100%;
-    height: 250px;
+    width: 280px;
+    height: 280px;
     z-index: 1;
-    overflow: hidden;
-    opacity: 0.6;
-    pointer-events: none;
+    flex-shrink: 0;
     margin-top: 30px;
 
-    @media (min-width: 768px) {
-      width: 400px;
-      height: 600px;
+    @media (max-width: 768px) {
+      width: 180px;
+      height: 180px;
       margin-top: 0;
-      opacity: 0.8;
+      margin-bottom: 24px;
+    }
+
+    @media (min-width: 768px) {
+      width: 340px;
+      height: 340px;
+      margin-top: 0;
+    }
+
+    @media (min-width: 1080px) {
+      width: 400px;
+      height: 400px;
+    }
+
+    .pic-wrapper {
+      display: block;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: var(--green);
+      border-radius: 50%;
+      overflow: hidden;
+      clip-path: circle(50% at 50% 50%);
+      transition: all 0.5s ease-in-out;
+      box-shadow: 0 0 0 2px var(--green);
+
+      &:hover {
+        clip-path: ellipse(55% 50% at 50% 50%);
+        box-shadow: 0 0 30px var(--green-tint);
+      }
+
+      img.hero-pic {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        mix-blend-mode: multiply;
+        filter: grayscale(100%) contrast(1);
+        transition: filter 0.5s ease;
+
+        &:hover {
+          filter: none;
+        }
+      }
     }
   }
 
@@ -290,99 +332,6 @@ AnimatedText.propTypes = {
   as: PropTypes.string,
 };
 
-const codeUpwardAnimation = keyframes`
-  0% { transform: translateY(100vh); opacity: 0; }
-  5% { opacity: 1; }
-  95% { opacity: 1; }
-  100% { transform: translateY(-100vh); opacity: 0; }
-`;
-
-const TerminalWrapper = styled.div`
-  font-family: var(--font-mono);
-  font-size: var(--fz-xs);
-  color: var(--green);
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  user-select: none;
-  pointer-events: none;
-  
-  .code-line {
-    position: absolute;
-    white-space: nowrap;
-    animation: ${codeUpwardAnimation} linear infinite;
-    animation-delay: var(--delay);
-    animation-duration: var(--duration);
-    left: var(--left);
-    font-weight: 500;
-  }
-`;
-
-const TerminalCode = () => {
-  const codeLines = [
-    "const profile = await api.get('/api/profile');",
-    "import { Security, Scalability } from 'dev';",
-    "function buildFuture() { return 'world-class'; }",
-    "git commit -m 'Release v5.0.0'",
-    "docker build -t tech-portfolio .",
-    "kubectl apply -f deployment.yaml",
-    "npm install @tanstack/react-query",
-    "export default Hero;",
-    "// Building secure digital experiences",
-    "const isReady = true;",
-    "sudo apt update && sudo apt upgrade",
-    "ssh root@production-server",
-    "grep -r 'security' ./src",
-    "chmod +x deploy.sh",
-    "ping -c 4 eyobedelias.net.et",
-    "systemctl restart nginx",
-    "python3 -m venv venv",
-    "source venv/bin/activate",
-    "pip install djangorestframework",
-    "aws s3 sync ./dist s3://my-bucket",
-    "openssl genrsa -out key.pem 2048",
-    "curl -X POST https://api.eyobed.me/v1/deploy",
-    "ls -la /var/www/html",
-    "tail -f /var/log/syslog",
-    "netstat -tuln | grep 80",
-    "iptables -A INPUT -p tcp --dport 22 -j ACCEPT",
-    "df -h && free -m",
-    "top -n 1 -b",
-    "whoami && uptime",
-    "history | tail -n 20",
-    "cat /etc/passwd | cut -d: -f1",
-    "ps aux --sort=-%mem | head -n 10"
-  ];
-
-  return (
-    <TerminalWrapper>
-      {[...Array(60)].map((_, i) => {
-        const code = codeLines[Math.floor(Math.random() * codeLines.length)];
-        const delay = Math.random() * 15;
-        const duration = 6 + Math.random() * 6; // Slower: 6-12s
-        const left = Math.random() * 95;
-
-        return (
-          <div
-            key={i}
-            className="code-line"
-            style={{
-              '--delay': `${delay}s`,
-              '--duration': `${duration}s`,
-              '--left': `${left}%`,
-              top: '100%',
-              fontSize: `${Math.random() * 6 + 10}px`,
-              opacity: Math.random() * 0.4 + 0.3
-            }}
-          >
-            {code}
-          </div>
-        );
-      })}
-    </TerminalWrapper>
-  );
-};
 
 const TypewriterComponent = ({ text, className, as: Component = 'h3' }) => {
   const [key, setKey] = useState(0);
@@ -421,7 +370,6 @@ TypewriterComponent.propTypes = {
   as: PropTypes.string,
 };
 
-import { profile as fallbackProfile } from '../../fallbackData';
 
 const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -431,6 +379,8 @@ const Hero = () => {
     const res = await api.get('/api/profile');
     return res.data;
   });
+
+  const profileImage = profile.aboutImage || null;
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -495,15 +445,20 @@ const Hero = () => {
       </div>
 
       <div className="hero-3d">
-        <TransitionGroup component={null}>
-          {isMounted && (
-            <CSSTransition classNames="fade" timeout={loaderDelay} appear>
-              <div style={{ transitionDelay: '700ms', width: '100%', height: '100%' }}>
-                <TerminalCode />
-              </div>
-            </CSSTransition>
+        <div className="pic-wrapper">
+          {profileImage ? (
+            <img className="hero-pic" src={profileImage} alt="Eyobed Elias" />
+          ) : (
+            <StaticImage
+              className="hero-pic"
+              src="../../images/me.png"
+              width={400}
+              quality={100}
+              formats={['WEBP', 'AVIF']}
+              alt="Eyobed Elias - Full Stack Developer"
+            />
           )}
-        </TransitionGroup>
+        </div>
       </div>
     </StyledHeroSection>
   );
