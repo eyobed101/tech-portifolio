@@ -63,8 +63,9 @@ const StyledHeroSection = styled.section`
     @media (max-width: 768px) {
       width: 180px;
       height: 180px;
-      margin-top: 0;
-      margin-bottom: 24px;
+      margin: 40px auto;
+      align-self: center;
+      order: -1;
     }
 
     @media (min-width: 768px) {
@@ -332,7 +333,6 @@ AnimatedText.propTypes = {
   as: PropTypes.string,
 };
 
-
 const TypewriterComponent = ({ text, className, as: Component = 'h3' }) => {
   const [key, setKey] = useState(0);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -370,7 +370,6 @@ TypewriterComponent.propTypes = {
   as: PropTypes.string,
 };
 
-
 const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -391,35 +390,46 @@ const Hero = () => {
   }, []);
 
   const one = <h1 className="animated-heading">Hi, my name is</h1>;
-  const two = <AnimatedText text={profile.name || 'Eyobed Elias.'} className="big-heading" as="h2" />;
+  const two = (
+    <AnimatedText text={profile.name || 'Eyobed Elias.'} className="big-heading" as="h2" />
+  );
 
   const intro = profile.intro || 'I build secure digital experiences.';
   const introParts = intro.split(/(?=experiences\.)/);
   const threeText = introParts[0] || 'I build secure digital';
   const fourText = introParts[1] || 'experiences.';
 
-  const three = (
-    <TypewriterComponent text={threeText} className="big-heading-two" as="h3" />
-  );
+  const three = <TypewriterComponent text={threeText} className="big-heading-two" as="h3" />;
   const four = <AnimatedText text={fourText} className="big-heading-two" as="h3" />;
 
-  const description = profile.description || 'Software Developer and Technical Lead specializing in building secure, scalable systems.';
+  const description =
+    profile.description ||
+    'Software Developer and Technical Lead specializing in building secure, scalable systems.';
   const five = (
     <p
       dangerouslySetInnerHTML={{
         __html: description
-          .replace(/Tripways/g, '<a href="https://tripways.com.et/" target="_blank" rel="noreferrer">Tripways</a>')
-          .replace(/INSA/g, '<a href="https://insa.gov.et/" target="_blank" rel="noreferrer">INSA</a>')
+          .replace(
+            /Tripways/g,
+            '<a href="https://tripways.com.et/" target="_blank" rel="noreferrer">Tripways</a>',
+          )
+          .replace(
+            /INSA/g,
+            '<a href="https://insa.gov.et/" target="_blank" rel="noreferrer">INSA</a>',
+          ),
       }}
     />
   );
 
   const six = (
-    <a className="email-link" href={`mailto:${profile.email || fallbackProfile.email}`} target="_blank" rel="noreferrer">
+    <a
+      className="email-link"
+      href={`mailto:${profile.email || fallbackProfile.email}`}
+      target="_blank"
+      rel="noreferrer">
       Get In Touch
     </a>
   );
-
 
   const items = [one, two, three, four, five, six];
 
