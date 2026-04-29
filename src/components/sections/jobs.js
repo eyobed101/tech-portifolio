@@ -10,6 +10,7 @@ import api from '../../api';
 
 const StyledJobsSection = styled.section`
   max-width: 700px;
+  margin: 0 auto;
 
   .inner {
     display: flex;

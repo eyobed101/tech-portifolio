@@ -8,7 +8,6 @@ import { loaderDelay } from '@utils';
 import { useScrollDirection, usePrefersReducedMotion } from '@hooks';
 import { Menu } from '@components';
 import { IconLogo, IconHex } from '@components/icons';
-import ThemeToggle from './ThemeToggle';
 import { useQuery } from '@tanstack/react-query';
 import api from '../api';
 
@@ -152,9 +151,6 @@ const StyledLinks = styled.div`
     font-size: var(--fz-xs);
   }
 
-  .theme-toggle-wrapper {
-    margin-left: 15px;
-  }
 `;
 
 import { profile as fallbackProfile } from '../fallbackData';
@@ -227,11 +223,6 @@ const Nav = ({ isHome }) => {
     </a>
   );
 
-  const Toggle = (
-    <div className="theme-toggle-wrapper">
-      <ThemeToggle />
-    </div>
-  );
 
   return (
     <StyledHeader scrollDirection={scrollDirection} scrolledToTop={scrolledToTop}>
@@ -280,14 +271,6 @@ const Nav = ({ isHome }) => {
               </ol>
 
               <TransitionGroup component={null}>
-                {isMounted && (
-                  <CSSTransition classNames={fadeDownClass} timeout={timeout}>
-                    <div style={{ transitionDelay: `${isHome ? navLinks.length * 100 : 0}ms` }}>
-                      {Toggle}
-                    </div>
-                  </CSSTransition>
-                )}
-
                 {isMounted && (
                   <CSSTransition classNames={fadeDownClass} timeout={timeout}>
                     <div style={{ transitionDelay: `${isHome ? (navLinks.length + 1) * 100 : 0}ms` }}>

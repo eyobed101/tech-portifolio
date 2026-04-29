@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { navLinks } from '@config';
 import { KEY_CODES } from '@utils';
 import { useOnClickOutside } from '@hooks';
-import ThemeToggle from './ThemeToggle';
 
 const StyledMenu = styled.div`
   display: none;
@@ -287,9 +286,7 @@ const Menu = () => {
               Resume
             </a>
 
-            <div className="theme-toggle-wrapper">
-              <ThemeToggle />
-            </div>
+
           </nav>
         </StyledSidebar>
       </div>

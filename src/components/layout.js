@@ -31,22 +31,6 @@ const gradientMotion = keyframes`
   100% { background-position: 0% 50%; }
 `;
 
-const GradientBackground = styled.div`
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  background: var(--bg-gradient);
-  background-size: 400% 400%;
-  animation: ${gradientMotion} 15s ease infinite;
-
-  [data-theme='light'] & {
-    display: block;
-  }
-`;
 
 const Stars = styled.div`
   position: fixed;
@@ -55,10 +39,6 @@ const Stars = styled.div`
   width: 100%;
   height: 100%;
   z-index: -1;
-
-  [data-theme='light'] & {
-    display: none;
-  }
 `;
 
 const Stars1 = styled.div`
@@ -164,7 +144,6 @@ const Layout = ({ children, location }) => {
       <div id="root">
         <ThemeProvider theme={theme}>
           <GlobalStyle />
-          <GradientBackground />
           <Stars>
             <Stars1 />
             <Stars2 />
