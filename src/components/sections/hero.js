@@ -43,6 +43,15 @@ const StyledHeroSection = styled.section`
   @media (max-width: 768px) {
     flex-direction: column !important;
     justify-content: center !important;
+
+    .hero-content {
+      align-items: center;
+      text-align: center;
+
+      h1 {
+        margin-left: 0;
+      }
+    }
   }
 
   .hero-content {

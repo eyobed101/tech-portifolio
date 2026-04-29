@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import styled from 'styled-components';
+import BinaryAnimation from '../BinaryAnimation';
 import { srConfig } from '@config';
 import { KEY_CODES } from '@utils';
 import sr from '@utils/sr';
@@ -9,13 +10,15 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
 
 const StyledJobsSection = styled.section`
-  max-width: 700px;
+  max-width: 1000px;
   margin: 0 auto;
 
   .inner {
-    display: flex;
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 60px;
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       display: block;
     }
 
@@ -23,6 +26,23 @@ const StyledJobsSection = styled.section`
     @media (min-width: 700px) {
       min-height: 340px;
     }
+  }
+`;
+
+const StyledGraphicContainer = styled.div`
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--green-tint);
+  background: rgba(0, 255, 100, 0.01);
+  box-shadow: 0 10px 30px -15px var(--navy-shadow);
+  transition: var(--transition);
+
+  @media (max-width: 768px) {
+    min-height: 150px;
+    margin-top: 40px;
   }
 `;
 
@@ -234,76 +254,82 @@ const Jobs = () => {
       <h2 className="numbered-heading">Where I’ve Worked</h2>
 
       <div className="inner">
-        <StyledTabList role="tablist" aria-label="Job tabs" onKeyDown={e => onKeyDown(e)}>
-          {jobsData &&
-            jobsData.map((node, i) => {
-              const { company } = node;
-              return (
-                <StyledTabButton
-                  key={i}
-                  isActive={activeTabId === i}
-                  onClick={() => setActiveTabId(i)}
-                  ref={el => (tabs.current[i] = el)}
-                  id={`tab-${i}`}
-                  role="tab"
-                  tabIndex={activeTabId === i ? '0' : '-1'}
-                  aria-selected={activeTabId === i ? true : false}
-                  aria-controls={`panel-${i}`}>
-                  <span>{company}</span>
-                </StyledTabButton>
-              );
-            })}
-          <StyledHighlight activeTabId={activeTabId} />
-        </StyledTabList>
-
-        <StyledTabPanels>
-          {jobsData &&
-            jobsData.map((node, i) => {
-              const { title, url, company, range, content, html } = node;
-              let points = [];
-              if (content) {
-                try {
-                  points = JSON.parse(content);
-                } catch (e) {
-                  points = [content];
-                }
-              }
-
-              return (
-                <CSSTransition key={i} in={activeTabId === i} timeout={250} classNames="fade">
-                  <StyledTabPanel
-                    id={`panel-${i}`}
-                    role="tabpanel"
+        <div>
+          <StyledTabList role="tablist" aria-label="Job tabs" onKeyDown={e => onKeyDown(e)}>
+            {jobsData &&
+              jobsData.map((node, i) => {
+                const { company } = node;
+                return (
+                  <StyledTabButton
+                    key={i}
+                    isActive={activeTabId === i}
+                    onClick={() => setActiveTabId(i)}
+                    ref={el => (tabs.current[i] = el)}
+                    id={`tab-${i}`}
+                    role="tab"
                     tabIndex={activeTabId === i ? '0' : '-1'}
-                    aria-labelledby={`tab-${i}`}
-                    aria-hidden={activeTabId !== i}
-                    hidden={activeTabId !== i}>
-                    <h3>
-                      <span>{title}</span>
-                      <span className="company">
-                        &nbsp;@&nbsp;
-                        <a href={url} className="inline-link">
-                          {company}
-                        </a>
-                      </span>
-                    </h3>
+                    aria-selected={activeTabId === i ? true : false}
+                    aria-controls={`panel-${i}`}>
+                    <span>{company}</span>
+                  </StyledTabButton>
+                );
+              })}
+            <StyledHighlight activeTabId={activeTabId} />
+          </StyledTabList>
 
-                    <p className="range">{range}</p>
+          <StyledTabPanels>
+            {jobsData &&
+              jobsData.map((node, i) => {
+                const { title, url, company, range, content, html } = node;
+                let points = [];
+                if (content) {
+                  try {
+                    points = JSON.parse(content);
+                  } catch (e) {
+                    points = [content];
+                  }
+                }
 
-                    {html ? (
-                      <div dangerouslySetInnerHTML={{ __html: html }} />
-                    ) : (
-                      <ul>
-                        {points.map((point, i) => (
-                          <li key={i}>{point}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </StyledTabPanel>
-                </CSSTransition>
-              );
-            })}
-        </StyledTabPanels>
+                return (
+                  <CSSTransition key={i} in={activeTabId === i} timeout={250} classNames="fade">
+                    <StyledTabPanel
+                      id={`panel-${i}`}
+                      role="tabpanel"
+                      tabIndex={activeTabId === i ? '0' : '-1'}
+                      aria-labelledby={`tab-${i}`}
+                      aria-hidden={activeTabId !== i}
+                      hidden={activeTabId !== i}>
+                      <h3>
+                        <span>{title}</span>
+                        <span className="company">
+                          &nbsp;@&nbsp;
+                          <a href={url} className="inline-link">
+                            {company}
+                          </a>
+                        </span>
+                      </h3>
+
+                      <p className="range">{range}</p>
+
+                      {html ? (
+                        <div dangerouslySetInnerHTML={{ __html: html }} />
+                      ) : (
+                        <ul>
+                          {points.map((point, i) => (
+                            <li key={i}>{point}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </StyledTabPanel>
+                  </CSSTransition>
+                );
+              })}
+          </StyledTabPanels>
+        </div>
+
+        <StyledGraphicContainer>
+          <BinaryAnimation />
+        </StyledGraphicContainer>
       </div>
     </StyledJobsSection>
   );
