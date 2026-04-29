@@ -44,7 +44,7 @@ const AnimationWrapper = styled.div`
 `;
 
 const BinaryAnimation = () => {
-  const bitsCount = 150;
+  const bitsCount = 400;
 
   return (
     <AnimationWrapper>
