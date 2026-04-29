@@ -72,39 +72,13 @@ const TerminalCode = () => (
   <TerminalWrapper>
     {[...Array(35)].map((_, i) => {
       const code = codeLines[Math.floor(Math.random() * codeLines.length)];
-      // Depth layered setup: 1 (Front), 2 (Mid), 3 (Back)
-      const depth = Math.floor(Math.random() * 3) + 1;
 
-      let duration; let size; let opacity; let blur; let shadow; let zIndex;
+      const duration = 8 + Math.random() * 8; // 8s to 16s
+      const delay = Math.random() * 20; // Spread starts up to 20s
+      const left = -5 + Math.random() * 75; // Spread horizontally
 
-      if (depth === 1) {
-        // Front layer: Fast, big, bright, glow
-        duration = 6 + Math.random() * 4;
-        size = 14 + Math.random() * 4;
-        opacity = 0.8 + Math.random() * 0.2;
-        blur = 0;
-        shadow = '0 0 8px rgba(0, 255, 100, 0.4)';
-        zIndex = 3;
-      } else if (depth === 2) {
-        // Mid layer: Medium speed, normal size, semi-transparent
-        duration = 10 + Math.random() * 5;
-        size = 10 + Math.random() * 3;
-        opacity = 0.4 + Math.random() * 0.3;
-        blur = 0.8;
-        shadow = 'none';
-        zIndex = 2;
-      } else {
-        // Back layer: Slow, very small, faded, blurry ghosting
-        duration = 16 + Math.random() * 8;
-        size = 8 + Math.random() * 2;
-        opacity = 0.15 + Math.random() * 0.2;
-        blur = 1.8;
-        shadow = 'none';
-        zIndex = 1;
-      }
-
-      const delay = Math.random() * 20;
-      const left = -5 + Math.random() * 75; // Spread horizontally, avoiding extreme right cutoff
+      // Keeping varying opacities helps overlapping lines look natural
+      const opacity = 0.5 + Math.random() * 0.4;
 
       return (
         <div
@@ -115,10 +89,8 @@ const TerminalCode = () => (
             '--duration': `${duration}s`,
             '--left': `${left}%`,
             '--final-opacity': opacity,
-            fontSize: `${size}px`,
-            filter: `blur(${blur}px)`,
-            textShadow: shadow,
-            zIndex: zIndex,
+            fontSize: '12px',
+            color: 'var(--green)',
           }}>
           {code}
         </div>
