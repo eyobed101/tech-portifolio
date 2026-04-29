@@ -74,14 +74,14 @@ const StyledHeroSection = styled.section`
   }
 
   h1 {
-    margin: 0 0 30px 4px;
+    margin: 0 0 40px 4px;
     color: var(--green);
     font-family: var(--font-mono);
     font-size: clamp(var(--fz-sm), 5vw, var(--fz-md));
     font-weight: 400;
 
     @media (max-width: 480px) {
-      margin: 0 0 20px 2px;
+      margin: 0 0 30px 2px;
     }
   }
 
@@ -362,7 +362,7 @@ const TerminalCode = () => {
         const delay = Math.random() * 15;
         const duration = 6 + Math.random() * 6; // Slower: 6-12s
         const left = Math.random() * 95;
-        
+
         return (
           <div
             key={i}
