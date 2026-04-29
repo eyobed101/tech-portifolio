@@ -45,11 +45,61 @@ const StyledHeroSection = styled.section`
     justify-content: center !important;
 
     .hero-content {
-      align-items: center;
-      text-align: center;
+      align-items: center !important;
+      text-align: center !important;
+      width: 100%;
 
-      h1 {
-        margin-left: 0;
+      /* Add vertical spacing between each animated element */
+      & > div {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 12px;
+      }
+
+      h1, h2, h3, p {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+
+      /* Bigger "Hi, my name is" on mobile */
+      h1, h1.animated-heading {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        text-align: center !important;
+        width: 100%;
+        font-size: clamp(var(--fz-md), 5vw, var(--fz-xl)) !important;
+      }
+
+      /* Bigger name heading */
+      .big-heading {
+        font-size: clamp(48px, 12vw, 72px) !important;
+      }
+
+      /* Bigger subtitle heading */
+      .big-heading-two {
+        font-size: clamp(28px, 8vw, 48px) !important;
+      }
+
+      /* More spacing under description */
+      p {
+        font-size: var(--fz-lg);
+        margin-top: 16px !important;
+        margin-bottom: 8px;
+        max-width: 100%;
+      }
+
+      /* Center the Get In Touch button */
+      .email-link {
+        display: block;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        margin-top: 30px !important;
+        width: fit-content;
+        text-align: center;
       }
     }
   }
