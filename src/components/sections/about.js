@@ -28,7 +28,7 @@ const StyledAboutSection = styled.section`
   .terminal-side {
     position: relative;
     width: 100%;
-    min-height: 320px;
+    min-height: 480px;
     overflow: hidden;
     border-radius: 8px;
     border: 1px solid var(--green-tint);
