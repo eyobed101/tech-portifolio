@@ -7,7 +7,6 @@ import { usePrefersReducedMotion } from '@hooks';
 import anime from 'animejs';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
-import ThreeDPrism from '../ThreeDPrism';
 
 // New continuous wave animation for text
 const waveAnimation = keyframes`
@@ -39,6 +38,11 @@ const StyledHeroSection = styled.section`
   justify-content: space-between !important;
   align-items: center !important;
 
+  @media (max-width: 768px) {
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
   .hero-content {
     display: flex;
     flex-direction: column;
@@ -47,11 +51,20 @@ const StyledHeroSection = styled.section`
   }
 
   .hero-3d {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    @media (max-width: 768px) {
-      display: none;
+    position: relative;
+    width: 100%;
+    height: 250px;
+    z-index: 1;
+    overflow: hidden;
+    opacity: 0.6;
+    pointer-events: none;
+    margin-top: 30px;
+
+    @media (min-width: 768px) {
+      width: 400px;
+      height: 600px;
+      margin-top: 0;
+      opacity: 0.8;
     }
   }
 
@@ -277,58 +290,99 @@ AnimatedText.propTypes = {
   as: PropTypes.string,
 };
 
-const floatAnimation = keyframes`
-  0% { transform: translateY(-50%) perspective(1000px) rotateY(-20deg) rotateX(10deg) translateZ(0px); box-shadow: -20px 20px 40px -15px var(--navy-shadow); }
-  50% { transform: translateY(-53%) perspective(1000px) rotateY(-16deg) rotateX(12deg) translateZ(10px); box-shadow: -25px 25px 50px -15px var(--navy-shadow); }
-  100% { transform: translateY(-50%) perspective(1000px) rotateY(-20deg) rotateX(10deg) translateZ(0px); box-shadow: -20px 20px 40px -15px var(--navy-shadow); }
+const codeUpwardAnimation = keyframes`
+  0% { transform: translateY(100vh); opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { transform: translateY(-100vh); opacity: 0; }
 `;
 
-const ThreeDTerminal = styled.div`
-  position: absolute;
-  right: 0;
-  top: 50%;
-  width: 320px;
-  background-color: #0b1120;
-  border-radius: 8px;
-  border: 1px solid var(--lightest-navy);
-  padding: 20px;
-  z-index: 10;
-  animation: ${floatAnimation} 6s ease-in-out infinite;
-  transform-style: preserve-3d;
-  opacity: 0;
-  animation-fill-mode: forwards;
-
-  @media (max-width: 1080px) {
-    display: none;
-  }
-
-  .mac-buttons {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    span {
-      display: block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: #ff5f56;
-      &:nth-child(2) { background-color: #ffbd2e; }
-      &:nth-child(3) { background-color: #27c93f; }
-    }
-  }
-
-  .code {
-    font-family: var(--font-mono);
-    font-size: var(--fz-xs);
-    color: var(--light-slate);
-    line-height: 1.8;
-
-    .keyword { color: #c678dd; }
-    .function { color: #61afef; }
-    .string { color: #98c379; }
-    .comment { color: #5c6370; font-style: italic; }
+const TerminalWrapper = styled.div`
+  font-family: var(--font-mono);
+  font-size: var(--fz-xs);
+  color: var(--green);
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+  
+  .code-line {
+    position: absolute;
+    white-space: nowrap;
+    animation: ${codeUpwardAnimation} linear infinite;
+    animation-delay: var(--delay);
+    animation-duration: var(--duration);
+    left: var(--left);
+    font-weight: 500;
   }
 `;
+
+const TerminalCode = () => {
+  const codeLines = [
+    "const profile = await api.get('/api/profile');",
+    "import { Security, Scalability } from 'dev';",
+    "function buildFuture() { return 'world-class'; }",
+    "git commit -m 'Release v5.0.0'",
+    "docker build -t tech-portfolio .",
+    "kubectl apply -f deployment.yaml",
+    "npm install @tanstack/react-query",
+    "export default Hero;",
+    "// Building secure digital experiences",
+    "const isReady = true;",
+    "sudo apt update && sudo apt upgrade",
+    "ssh root@production-server",
+    "grep -r 'security' ./src",
+    "chmod +x deploy.sh",
+    "ping -c 4 eyobedelias.net.et",
+    "systemctl restart nginx",
+    "python3 -m venv venv",
+    "source venv/bin/activate",
+    "pip install djangorestframework",
+    "aws s3 sync ./dist s3://my-bucket",
+    "openssl genrsa -out key.pem 2048",
+    "curl -X POST https://api.eyobed.me/v1/deploy",
+    "ls -la /var/www/html",
+    "tail -f /var/log/syslog",
+    "netstat -tuln | grep 80",
+    "iptables -A INPUT -p tcp --dport 22 -j ACCEPT",
+    "df -h && free -m",
+    "top -n 1 -b",
+    "whoami && uptime",
+    "history | tail -n 20",
+    "cat /etc/passwd | cut -d: -f1",
+    "ps aux --sort=-%mem | head -n 10"
+  ];
+
+  return (
+    <TerminalWrapper>
+      {[...Array(60)].map((_, i) => {
+        const code = codeLines[Math.floor(Math.random() * codeLines.length)];
+        const delay = Math.random() * 15;
+        const duration = 6 + Math.random() * 6; // Slower: 6-12s
+        const left = Math.random() * 95;
+        
+        return (
+          <div
+            key={i}
+            className="code-line"
+            style={{
+              '--delay': `${delay}s`,
+              '--duration': `${duration}s`,
+              '--left': `${left}%`,
+              top: '100%',
+              fontSize: `${Math.random() * 6 + 10}px`,
+              opacity: Math.random() * 0.4 + 0.3
+            }}
+          >
+            {code}
+          </div>
+        );
+      })}
+    </TerminalWrapper>
+  );
+};
 
 const TypewriterComponent = ({ text, className, as: Component = 'h3' }) => {
   const [key, setKey] = useState(0);
@@ -416,25 +470,6 @@ const Hero = () => {
     </a>
   );
 
-  const seven = (
-    <ThreeDTerminal style={{ opacity: 1 }}>
-      <div className="mac-buttons">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="code">
-        <span className="comment">// Crafting digital experiences</span><br />
-        <span className="keyword">const</span> dev <span className="keyword">=</span> {'{'}<br />
-        &nbsp;&nbsp;name: <span className="string">'Eyobed Elias'</span>,<br />
-        &nbsp;&nbsp;focus: [<span className="string">'Security'</span>, <span className="string">'Scalability'</span>],<br />
-        &nbsp;&nbsp;<span className="function">build</span>: () <span className="keyword">=&gt;</span> <span className="string">"World-class software"</span><br />
-        {'}'};<br />
-        <br />
-        <span className="function">dev.build</span>();
-      </div>
-    </ThreeDTerminal>
-  );
 
   const items = [one, two, three, four, five, six];
 
@@ -463,25 +498,13 @@ const Hero = () => {
         <TransitionGroup component={null}>
           {isMounted && (
             <CSSTransition classNames="fade" timeout={loaderDelay} appear>
-              <div style={{ transitionDelay: '700ms' }}>
-                <ThreeDPrism />
+              <div style={{ transitionDelay: '700ms', width: '100%', height: '100%' }}>
+                <TerminalCode />
               </div>
             </CSSTransition>
           )}
         </TransitionGroup>
       </div>
-
-      <TransitionGroup component={null}>
-        {isMounted && (
-          <CSSTransition classNames="fade" timeout={loaderDelay} appear>
-            <div style={{ position: 'absolute', right: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none', transitionDelay: '700ms', zIndex: 10 }}>
-              <div style={{ pointerEvents: 'auto', position: 'relative', width: '100%', height: '100%' }}>
-                {seven}
-              </div>
-            </div>
-          </CSSTransition>
-        )}
-      </TransitionGroup>
     </StyledHeroSection>
   );
 };
