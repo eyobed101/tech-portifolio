@@ -48,6 +48,7 @@ export const projects = [
 export const posts = [
     {
         title: "Building Secure Systems",
+        cover: "https://endpoint.eyobedelias.net.et/uploads/1777320352001-49544608.jpg",
         description: "Lessons learned from building national-scale cybersecurity applications.",
         slug: "building-secure-systems",
         date: "2024-01-01",

@@ -18,6 +18,21 @@ const StyledPostHeader = styled.header`
     margin-right: 10px;
   }
 `;
+
+const StyledPostCover = styled.div`
+  width: 100%;
+  margin-bottom: 50px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 10px 30px -15px var(--navy-shadow);
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+`;
 const StyledPostContent = styled.div`
   margin-bottom: 100px;
   h1,
@@ -103,14 +118,22 @@ const StyledShare = styled.div`
 
 import { posts as fallbackPosts } from '../fallbackData';
 
-const PostTemplate = ({ data, location }) => {
-  const initialPost = data.databasePost;
-  const slug = initialPost?.slug || '';
+const PostTemplate = ({ data, location, params }) => {
+  // Read slug from URL at runtime — supports both /:slug and context-based rendering
+  const urlSlug =
+    (params && params.slug) ||
+    (location &&
+      location.pathname
+        .replace(/^\/pensieve\//, '')
+        .replace(/\/$/, ''));
+
+  const initialPost = data?.databasePost || null;
+  const slug = urlSlug || initialPost?.slug || '';
 
   const { data: post = initialPost || fallbackPosts[0] } = useQuery(['post', slug], async () => {
-    const res = await api.get(`/api/posts`);
-    const found = res.data.find(p => p.slug === slug || p.slug === slug.replace(/^\//, '') || ('/' + p.slug === slug));
-    return found;
+    const cleanSlug = slug.replace(/^\//, '');
+    const res = await api.get(`/api/posts/${cleanSlug}`);
+    return res.data;
   }, {
     enabled: !!slug,
   });
@@ -155,6 +178,11 @@ const PostTemplate = ({ data, location }) => {
         </span>
 
         <StyledPostHeader>
+          {cover && (
+            <StyledPostCover>
+              <img src={cover} alt={title} />
+            </StyledPostCover>
+          )}
           <h1 className="medium-heading">{title}</h1>
           <p className="subtitle">
             <time>
@@ -201,10 +229,13 @@ export default PostTemplate;
 PostTemplate.propTypes = {
   data: PropTypes.object,
   location: PropTypes.object,
+  params: PropTypes.object,
 };
 
+// Optional query — when rendered via the catch-all matchPath, no slug is passed
+// and the component falls back to reading the slug from the URL at runtime.
 export const pageQuery = graphql`
-  query($slug: String!) {
+  query($slug: String) {
     databasePost(slug: { eq: $slug }) {
       title
       description

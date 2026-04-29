@@ -182,33 +182,22 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
     });
   });
 
-  posts.forEach(({ node }) => {
-    const isPrefixed = node.slug.startsWith('/pensieve/');
-    const cleanSlug = node.slug.replace(/^\//, '');
-    const normalizedPath = isPrefixed ? node.slug : `/pensieve/${cleanSlug}`;
-
-    createPage({
-      path: normalizedPath,
-      component: postTemplate,
-      context: {
-        slug: node.slug,
-      },
-    });
-
-    if (node.tags) {
-      const tags = JSON.parse(node.tags);
-      tags.forEach(tag => tagsSet.add(tag));
-    }
+  // Use a single client-only catch-all route for individual posts
+  // (no per-post page generation needed — post.js reads slug from the URL at runtime)
+  createPage({
+    path: '/pensieve/post',
+    matchPath: '/pensieve/:slug',
+    component: postTemplate,
+    context: {},
   });
 
-  tagsSet.forEach(tag => {
-    createPage({
-      path: `/pensieve/tags/${_.kebabCase(tag)}/`,
-      component: tagTemplate,
-      context: {
-        tag: tag,
-      },
-    });
+  // Use a single client-only catch-all route for all tag pages
+  // (no per-tag page generation needed — tag.js reads the tag from the URL at runtime)
+  createPage({
+    path: '/pensieve/tags/all',
+    matchPath: '/pensieve/tags/*',
+    component: tagTemplate,
+    context: {},
   });
 };
 

@@ -165,7 +165,6 @@ const Layout = ({ children, location }) => {
               <div id="content">
                 {children}
                 <Contact />
-                <Footer />
               </div>
             </StyledContent>
           )}
