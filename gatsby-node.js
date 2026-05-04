@@ -236,6 +236,23 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
       },
     });
   });
+
+  // Re-add client-only catch-all routes as a fallback
+  // This ensures that if a post or tag wasn't created statically (e.g. added after build
+  // or build-time API issues), it still works client-side via React Query.
+  createPage({
+    path: '/pensieve/post',
+    matchPath: '/pensieve/:slug',
+    component: postTemplate,
+    context: {},
+  });
+
+  createPage({
+    path: '/pensieve/tags/all',
+    matchPath: '/pensieve/tags/*',
+    component: tagTemplate,
+    context: {},
+  });
 };
 
 
