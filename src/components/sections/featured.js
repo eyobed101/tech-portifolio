@@ -156,7 +156,7 @@ const StyledProject = styled.li`
     z-index: 2;
     padding: 25px;
     border-radius: 12px;
-    background-color: rgba(17, 34, 64, 0.6);
+    background-color: rgba(17, 34, 64, 0.4);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(100, 255, 218, 0.1);
     color: var(--light-slate);
@@ -165,8 +165,8 @@ const StyledProject = styled.li`
 
     @media (max-width: 768px) {
       padding: 30px;
-      /* On mobile, keep the glass effect but make it slightly more opaque */
-      background-color: rgba(17, 34, 64, 0.85);
+      /* On mobile, keep the glass effect but make it slightly more focused */
+      background-color: rgba(17, 34, 64, 0.6);
 
       &:hover {
         box-shadow: none;

@@ -72,10 +72,17 @@ const StyledPost = styled.li`
     padding: 0;
     border-radius: 16px;
     transition: var(--transition);
-    background-color: var(--light-navy);
+    background-color: rgba(17, 34, 64, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 255, 218, 0.1);
     overflow: hidden;
     display: flex;
     flex-direction: column;
+
+    &:hover {
+      border: 1px solid rgba(100, 255, 218, 0.3);
+      background-color: rgba(17, 34, 64, 0.6);
+    }
   }
 
   .post__image {
