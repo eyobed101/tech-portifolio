@@ -155,19 +155,26 @@ const StyledProject = styled.li`
     position: relative;
     z-index: 2;
     padding: 25px;
-    border-radius: var(--border-radius);
-    background-color: var(--light-navy);
+    border-radius: 12px;
+    background-color: rgba(17, 34, 64, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 255, 218, 0.1);
     color: var(--light-slate);
     font-size: var(--fz-lg);
+    transition: var(--transition);
 
     @media (max-width: 768px) {
-      padding: 20px 0;
-      background-color: transparent;
-      box-shadow: none;
+      padding: 30px;
+      /* On mobile, keep the glass effect but make it slightly more opaque */
+      background-color: rgba(17, 34, 64, 0.85);
 
       &:hover {
         box-shadow: none;
       }
+    }
+
+    &:hover {
+      border: 1px solid rgba(100, 255, 218, 0.3);
     }
 
     a {
