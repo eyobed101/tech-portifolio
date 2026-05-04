@@ -56,7 +56,7 @@ const StyledHeroSection = styled.section`
         justify-content: center;
         align-items: center;
         text-align: center;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
       }
 
       h1, h2, h3, p {
@@ -87,8 +87,8 @@ const StyledHeroSection = styled.section`
       /* More spacing under description */
       p {
         font-size: var(--fz-lg);
-        margin-top: 16px !important;
-        margin-bottom: 8px;
+        margin-top: 8px !important;
+        margin-bottom: 4px;
         max-width: 100%;
       }
 
@@ -97,7 +97,7 @@ const StyledHeroSection = styled.section`
         display: block;
         margin-left: auto !important;
         margin-right: auto !important;
-        margin-top: 30px !important;
+        margin-top: 20px !important;
         width: fit-content;
         text-align: center;
       }
@@ -113,8 +113,8 @@ const StyledHeroSection = styled.section`
 
   .hero-3d {
     position: relative;
-    width: 280px;
-    height: 280px;
+    width: 250px;
+    height: 250px;
     z-index: 1;
     flex-shrink: 0;
     margin-top: 30px;
@@ -122,20 +122,20 @@ const StyledHeroSection = styled.section`
     @media (max-width: 768px) {
       width: 180px;
       height: 180px;
-      margin: 40px auto;
+      margin: 20px auto;
       align-self: center;
       order: -1;
     }
 
     @media (min-width: 768px) {
-      width: 340px;
-      height: 340px;
+      width: 300px;
+      height: 300px;
       margin-top: 0;
     }
 
     @media (min-width: 1080px) {
-      width: 400px;
-      height: 400px;
+      width: 340px;
+      height: 340px;
     }
 
     .pic-wrapper {
