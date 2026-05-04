@@ -139,16 +139,19 @@ const PostTemplate = ({ data, location, params }) => {
   });
 
   const { title, date, tags, content, description, cover } = post;
+  const siteUrl = data?.site?.siteMetadata?.siteUrl || 'https://eyobedelias.net.et';
+  const ogImage = cover?.startsWith('http') ? cover : `${siteUrl}${cover || '/og2.png'}`;
+
   let tagsList = [];
   try {
-    tagsList = JSON.parse(tags);
+    tagsList = typeof tags === 'string' ? JSON.parse(tags) : tags;
   } catch (e) {
     if (typeof tags === 'string') tagsList = tags.split(',').map(t => t.trim());
   }
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(title)}`;
-  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : `${siteUrl}/pensieve/${slug}`;
+  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`;
+  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
 
   const [copied, setCopied] = React.useState(false);
   const handleCopy = () => {
@@ -162,13 +165,21 @@ const PostTemplate = ({ data, location, params }) => {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
+        <link rel="canonical" href={shareUrl} />
+
+        <meta property="og:site_name" content="Eyobed Elias" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="article" />
-        {cover && <meta property="og:image" content={cover} />}
-        {cover && <meta name="twitter:image" content={cover} />}
+        <meta property="og:url" content={shareUrl} />
+        <meta property="og:image" content={ogImage} />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@eyobedelias" />
+        <meta name="twitter:creator" content="@eyobedelias" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
       </Helmet>
 
       <StyledPostContainer>
@@ -236,6 +247,11 @@ PostTemplate.propTypes = {
 // and the component falls back to reading the slug from the URL at runtime.
 export const pageQuery = graphql`
   query($slug: String) {
+    site {
+      siteMetadata {
+        siteUrl
+      }
+    }
     databasePost(slug: { eq: $slug }) {
       title
       description

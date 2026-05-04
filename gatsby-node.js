@@ -21,8 +21,9 @@ const {
   posts: fallbackPosts,
 } = require('./src/fallbackDataNode');
 
-exports.sourceNodes = async ({ actions, createNodeId, createContentDigest }) => {
+exports.sourceNodes = async ({ actions, createNodeId, createContentDigest, reporter }) => {
   const { createNode } = actions;
+  const API_URL = process.env.GATSBY_API_URL || 'http://localhost:3001';
 
   const createDatabaseNode = (data, type) => {
     const nodeMeta = {
@@ -40,15 +41,33 @@ exports.sourceNodes = async ({ actions, createNodeId, createContentDigest }) => 
     createNode(node);
   };
 
-  // Use fallback data for build nodes to ensure stable schema and page creation
-  // Components will fetch live data at runtime via TanStack Query
-  fallbackProjects.forEach(p => createDatabaseNode(p, 'DatabaseProject'));
-  fallbackFeatured.forEach(f => createDatabaseNode(f, 'DatabaseFeatured'));
-  fallbackJobs.forEach(j => createDatabaseNode(j, 'DatabaseJob'));
-  fallbackPosts.forEach(p => createDatabaseNode(p, 'DatabasePost'));
-  if (fallbackProfile) {
-    createDatabaseNode(fallbackProfile, 'DatabaseProfile');
-  }
+  // Fetch live data from API and create nodes
+  const fetchAndCreateNodes = async (endpoint, type, fallbackData) => {
+    try {
+      const res = await axios.get(`${API_URL}${endpoint}`);
+      const dataList = Array.isArray(res.data) ? res.data : [res.data];
+      if (dataList.length > 0) {
+        dataList.forEach(item => createDatabaseNode(item, type));
+        return;
+      }
+    } catch (e) {
+      reporter.warn(`Could not fetch ${type} from ${endpoint}, using fallback data: ${e.message}`);
+    }
+    // Fallback if API fails or is empty
+    if (Array.isArray(fallbackData)) {
+      fallbackData.forEach(item => createDatabaseNode(item, type));
+    } else if (fallbackData) {
+      createDatabaseNode(fallbackData, type);
+    }
+  };
+
+  await Promise.all([
+    fetchAndCreateNodes('/api/projects', 'DatabaseProject', fallbackProjects),
+    fetchAndCreateNodes('/api/featured', 'DatabaseFeatured', fallbackFeatured),
+    fetchAndCreateNodes('/api/jobs', 'DatabaseJob', fallbackJobs),
+    fetchAndCreateNodes('/api/posts', 'DatabasePost', fallbackPosts),
+    fetchAndCreateNodes('/api/profile', 'DatabaseProfile', fallbackProfile),
+  ]);
 };
 
 
@@ -182,22 +201,40 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
     });
   });
 
-  // Use a single client-only catch-all route for individual posts
-  // (no per-post page generation needed — post.js reads slug from the URL at runtime)
-  createPage({
-    path: '/pensieve/post',
-    matchPath: '/pensieve/:slug',
-    component: postTemplate,
-    context: {},
+  // Generate static pages for all posts for full SEO support
+  posts.forEach(({ node }) => {
+    const isPrefixed = node.slug.startsWith('/pensieve/');
+    const cleanSlug = node.slug.replace(/^\//, '');
+    const normalizedPath = isPrefixed ? node.slug : `/pensieve/${cleanSlug}`;
+
+    createPage({
+      path: normalizedPath,
+      component: postTemplate,
+      context: {
+        slug: node.slug,
+      },
+    });
+
+    if (node.tags) {
+      try {
+        const tags = typeof node.tags === 'string' ? JSON.parse(node.tags) : node.tags;
+        tags.forEach(tag => tagsSet.add(tag));
+      } catch (e) {
+        // Handle comma separated tags if they are not JSON
+        node.tags.split(',').forEach(tag => tagsSet.add(tag.trim()));
+      }
+    }
   });
 
-  // Use a single client-only catch-all route for all tag pages
-  // (no per-tag page generation needed — tag.js reads the tag from the URL at runtime)
-  createPage({
-    path: '/pensieve/tags/all',
-    matchPath: '/pensieve/tags/*',
-    component: tagTemplate,
-    context: {},
+  // Generate static pages for each tag
+  tagsSet.forEach(tag => {
+    createPage({
+      path: `/pensieve/tags/${_.kebabCase(tag)}/`,
+      component: tagTemplate,
+      context: {
+        tag: tag,
+      },
+    });
   });
 };
 
