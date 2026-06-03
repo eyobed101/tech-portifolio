@@ -18,173 +18,107 @@ function useRoleCycle() {
   return ROLES[idx]
 }
 
-// ── Single orbit ring with evenly distributed chips ───────────────────────────
-function OrbitRing({
-  skills,
-  radius,
-  duration,
-  ccw = false,
-  entryDelay = 0,
+// ── Avatar with outbounding orbit effect ─────────────────────────────────────
+function AvatarOrbit({
+  profile,
+  size,
+  mounted,
 }: {
-  skills: { label: string; color: string }[]
-  radius: number
-  duration: number
-  ccw?: boolean
-  entryDelay?: number
+  profile: Profile | null
+  size: number
+  mounted: boolean
 }) {
-  const count = skills.length
-  const size = radius * 2
-
-  return (
-    <motion.div
-      className="absolute"
-      style={{
-        width: size,
-        height: size,
-        top: '50%',
-        left: '50%',
-        marginTop: -radius,
-        marginLeft: -radius,
-      }}
-      animate={{ rotate: ccw ? -360 : 360 }}
-      transition={{ duration, repeat: Infinity, ease: 'linear' }}
-    >
-      {skills.map(({ label, color }, i) => {
-        const angleDeg = (i / count) * 360 - 90
-        const rad = (angleDeg * Math.PI) / 180
-        const cx = radius + radius * Math.cos(rad)
-        const cy = radius + radius * Math.sin(rad)
-
-        return (
-          <motion.div
-            key={label}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: entryDelay + i * 0.07, duration: 0.3, ease: 'easeOut' }}
-            style={{
-              position: 'absolute',
-              left: cx,
-              top: cy,
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            {/* counter-rotate so label stays upright */}
-            <motion.div
-              animate={{ rotate: ccw ? 360 : -360 }}
-              transition={{ duration, repeat: Infinity, ease: 'linear' }}
-            >
-              <div
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap select-none"
-                style={{
-                  background: 'var(--surface)',
-                  color,
-                  border: `1px solid ${color}45`,
-                  boxShadow: `0 2px 10px ${color}22`,
-                  cursor: 'default',
-                }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
-                {label}
-              </div>
-            </motion.div>
-          </motion.div>
-        )
-      })}
-    </motion.div>
-  )
-}
-
-// ── Visual panel ──────────────────────────────────────────────────────────────
-function HeroVisual({ profile, mounted }: { profile: Profile | null; mounted: boolean }) {
   if (!mounted) return null
 
-  const RING_1 = [
-    { label: 'React.js',    color: '#61dafb' },
-    { label: 'TypeScript',  color: '#3178c6' },
-    { label: 'Node.js',     color: '#539e43' },
-    { label: 'Python',      color: '#f59e0b' },
-  ]
-  const RING_2 = [
-    { label: 'Next.js',     color: '#94a3b8' },
-    { label: 'Laravel',     color: '#ef4444' },
-    { label: 'Docker',      color: '#2496ed' },
-    { label: 'MongoDB',     color: '#47a248' },
-    { label: 'JWT / OAuth', color: '#8b5cf6' },
-  ]
-  const RING_3 = [
-    { label: 'AWS',          color: '#ff9900' },
-    { label: 'PostgreSQL',   color: '#336791' },
-    { label: 'Socket.IO',    color: '#010101' },
-    { label: 'Threat Hunt',  color: '#06b6d4' },
-    { label: 'Redis',        color: '#dc2626' },
-    { label: 'CI / CD',      color: '#10b981' },
-  ]
-
-  const RADII  = [100, 170, 240]
-  const RINGS  = [RING_1, RING_2, RING_3]
-  const W      = RADII[2] * 2 + 120   // 600px — fits all chips
-  const H      = W
+  const avatarSize = size
+  const pulseDelays = [0, 0.6, 1.2]
 
   return (
     <div
-      className="relative flex items-center justify-center"
-      style={{ width: W, height: H }}
+      className="relative flex items-center justify-center flex-shrink-0"
+      style={{ width: size + 80, height: size + 80 }}
     >
-      {/* central glow */}
-      <div className="absolute rounded-full pointer-events-none" aria-hidden="true"
-        style={{ width: 220, height: 220, background: 'radial-gradient(circle, var(--glow) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+      {/* ambient glow */}
+      <div
+        className="absolute rounded-full pointer-events-none"
+        aria-hidden="true"
+        style={{
+          width: avatarSize + 60,
+          height: avatarSize + 60,
+          background: 'radial-gradient(circle, var(--glow) 0%, transparent 70%)',
+          filter: 'blur(28px)',
+        }}
+      />
 
-      {/* dashed guide rings */}
-      {RADII.map(r => (
-        <div key={r} className="absolute rounded-full pointer-events-none" aria-hidden="true"
-          style={{ width: r * 2, height: r * 2, border: '1px dashed var(--border)', opacity: 0.22 }} />
-      ))}
-
-      {/* orbit rings */}
-      {RINGS.map((ring, i) => (
-        <OrbitRing
+      {/* outbounding pulse rings — 3 staggered */}
+      {pulseDelays.map((d, i) => (
+        <motion.div
           key={i}
-          skills={ring}
-          radius={RADII[i]}
-          duration={18 + i * 10}
-          ccw={i % 2 !== 0}
-          entryDelay={0.4 + i * 0.35}
+          className="absolute rounded-full pointer-events-none"
+          aria-hidden="true"
+          style={{
+            width: avatarSize + 12,
+            height: avatarSize + 12,
+            border: `${i === 0 ? '2px' : '1px'} solid ${i === 1 ? 'var(--secondary)' : 'var(--primary)'}`,
+            borderRadius: '50%',
+          }}
+          animate={{
+            scale: [1, 1.45 + i * 0.15, 1],
+            opacity: [0.55, 0, 0.55],
+          }}
+          transition={{
+            duration: 2.8,
+            repeat: Infinity,
+            ease: 'easeOut',
+            delay: d,
+          }}
         />
       ))}
 
-      {/* center avatar */}
+      {/* spinning conic border ring */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative z-10"
+        className="absolute rounded-full pointer-events-none"
+        aria-hidden="true"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
         style={{
-          width: 100, height: 100,
+          width: avatarSize + 10,
+          height: avatarSize + 10,
           borderRadius: '50%',
-          background: 'var(--surface)',
+          background: `conic-gradient(from 0deg, var(--primary) 0%, var(--secondary) 40%, transparent 60%, var(--primary) 100%)`,
+          padding: '2px',
+          WebkitMask: `radial-gradient(farthest-side, transparent calc(100% - 2px), white calc(100% - 2px))`,
+          mask: `radial-gradient(farthest-side, transparent calc(100% - 2px), white calc(100% - 2px))`,
+        }}
+      />
+
+      {/* avatar */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.7 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.55, ease: 'easeOut' }}
+        className="relative z-10 rounded-full overflow-hidden"
+        style={{
+          width: avatarSize,
+          height: avatarSize,
           border: '3px solid var(--primary)',
-          boxShadow: '0 0 48px var(--glow)',
-          overflow: 'hidden',
+          boxShadow: '0 0 40px var(--glow)',
+          background: 'var(--surface-2)',
           flexShrink: 0,
         }}
       >
         {profile?.aboutImage ? (
-          <img src={profile.aboutImage} alt="Eyobed Elias" className="w-full h-full object-cover" />
+          <img
+            src={profile.aboutImage}
+            alt="Eyobed Elias"
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <LogoMark size={44} />
+            <LogoMark size={Math.round(avatarSize * 0.45)} />
           </div>
         )}
       </motion.div>
-
-      {/* pulse rings */}
-      {[0, 0.8].map((d, i) => (
-        <motion.div key={i} className="absolute rounded-full pointer-events-none" aria-hidden="true"
-          style={{ width: 116, height: 116, border: `1.5px solid ${i === 0 ? 'var(--primary)' : 'var(--secondary)'}`, borderRadius: '50%' }}
-          animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
-          transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', delay: d }}
-        />
-      ))}
     </div>
   )
 }
@@ -228,6 +162,14 @@ export default function Hero({ profile }: Props) {
 
           {/* ── Left text ── */}
           <motion.div variants={stagger} initial="hidden" animate={mounted ? 'visible' : 'hidden'} className="flex flex-col">
+
+            {/* Mobile avatar — shown only below lg */}
+            <motion.div
+              variants={item}
+              className="flex justify-center mb-8 lg:hidden"
+            >
+              <AvatarOrbit profile={profile} size={140} mounted={mounted} />
+            </motion.div>
             <motion.div variants={item} className="flex items-center gap-3 mb-5">
               <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium"
                 style={{ background: 'rgba(59,130,246,0.1)', color: 'var(--primary)', border: '1px solid rgba(59,130,246,0.2)' }}>
@@ -303,14 +245,14 @@ export default function Hero({ profile }: Props) {
             </motion.div>
           </motion.div>
 
-          {/* ── Right: orbit visual ── */}
+          {/* ── Right: avatar orbit — desktop only ── */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={mounted ? { opacity: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="hidden lg:flex items-center justify-center overflow-visible"
+            initial={{ opacity: 0, x: 20 }}
+            animate={mounted ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.65, delay: 0.35, ease: 'easeOut' }}
+            className="hidden lg:flex items-center justify-center"
           >
-            <HeroVisual profile={profile} mounted={mounted} />
+            <AvatarOrbit profile={profile} size={280} mounted={mounted} />
           </motion.div>
         </div>
 
