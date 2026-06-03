@@ -72,10 +72,17 @@ const StyledProject = styled.li`
     position: relative;
     height: 100%;
     padding: 2rem 1.75rem;
-    border-radius: var(--border-radius);
-    background-color: var(--light-navy);
+    border-radius: 12px;
+    background-color: rgba(17, 34, 64, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 255, 218, 0.1);
     transition: var(--transition);
     overflow: auto;
+
+    &:hover {
+      border: 1px solid rgba(100, 255, 218, 0.3);
+      background-color: rgba(17, 34, 64, 0.6);
+    }
   }
 
   .project-top {

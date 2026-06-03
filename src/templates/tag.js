@@ -49,9 +49,17 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../api';
 import { posts as fallbackPosts } from '../fallbackData';
 
-const TagTemplate = ({ pageContext, data, location }) => {
-  const { tag } = pageContext;
-  const buildEdges = data.allMarkdownRemark?.edges || [];
+const TagTemplate = ({ pageContext, data, location, params }) => {
+  // Support both old static pages (pageContext.tag) and new catch-all client routes (URL)
+  const tagFromUrl =
+    (params && params['*']) ||
+    (location &&
+      location.pathname
+        .replace(/^\/pensieve\/tags\//, '')
+        .replace(/\/$/, ''));
+  const tag = pageContext?.tag || tagFromUrl || '';
+
+  const buildEdges = data?.allMarkdownRemark?.edges || [];
 
   const { data: posts = [] } = useQuery(['posts-tag', tag], async () => {
     const res = await api.get('/api/posts');
@@ -63,9 +71,13 @@ const TagTemplate = ({ pageContext, data, location }) => {
       } catch (e) {
         tagsList = p.tags ? p.tags.split(',').map(t => t.trim()) : [];
       }
-      return tagsList.includes(tag);
+      // Match by original tag name or kebab-cased version
+      return tagsList.some(
+        t => t === tag || t.toLowerCase() === tag.toLowerCase() ||
+          require('lodash/kebabCase')(t) === tag
+      );
     });
-  });
+  }, { enabled: !!tag });
 
   return (
     <Layout location={location}>
@@ -131,27 +143,16 @@ export default TagTemplate;
 
 TagTemplate.propTypes = {
   pageContext: PropTypes.shape({
-    tag: PropTypes.string.isRequired,
+    tag: PropTypes.string,
   }),
-  data: PropTypes.shape({
-    allMarkdownRemark: PropTypes.shape({
-      totalCount: PropTypes.number.isRequired,
-      edges: PropTypes.arrayOf(
-        PropTypes.shape({
-          node: PropTypes.shape({
-            frontmatter: PropTypes.shape({
-              title: PropTypes.string.isRequired,
-            }),
-          }),
-        }).isRequired,
-      ),
-    }),
-  }),
+  data: PropTypes.object,
   location: PropTypes.object,
+  params: PropTypes.object,
 };
 
+// Optional query—when rendered via the catch-all matchPath no tag is passed
 export const pageQuery = graphql`
-  query($tag: String!) {
+  query($tag: String) {
     allMarkdownRemark(
       limit: 2000
       sort: { fields: [frontmatter___date], order: DESC }

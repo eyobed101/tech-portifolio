@@ -45,6 +45,9 @@ const StyledGrid = styled.ul`
 const StyledPost = styled.li`
   transition: var(--transition);
   cursor: default;
+  min-width: 300px;
+  border-radius: 16px;
+  overflow: hidden;
 
   @media (prefers-reduced-motion: no-preference) {
     &:hover,
@@ -64,30 +67,51 @@ const StyledPost = styled.li`
     ${({ theme }) => theme.mixins.boxShadow};
     ${({ theme }) => theme.mixins.flexBetween};
     flex-direction: column;
-    align-items: flex-start;
     position: relative;
     height: 100%;
-    padding: 2rem 1.75rem;
-    border-radius: var(--border-radius);
+    padding: 0;
+    border-radius: 16px;
     transition: var(--transition);
-    background-color: var(--light-navy);
+    background-color: rgba(17, 34, 64, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
-    header,
-    a {
-      width: 100%;
+    &:hover {
+      border: 1px solid rgba(100, 255, 218, 0.3);
+      background-color: rgba(17, 34, 64, 0.6);
     }
   }
 
-  .post__icon {
-    ${({ theme }) => theme.mixins.flexBetween};
-    color: var(--green);
-    margin-bottom: 30px;
-    margin-left: -5px;
+  .post__image {
+    width: 100%;
+    height: 220px;
+    background-color: var(--green);
+    overflow: hidden;
+    flex-shrink: 0;
 
-    svg {
-      width: 40px;
-      height: 40px;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+      opacity: 0.8;
     }
+
+    &:hover img {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
+  .post__content {
+    padding: 2rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
   }
 
   .post__title {
@@ -114,6 +138,26 @@ const StyledPost = styled.li`
   .post__desc {
     color: var(--light-slate);
     font-size: 17px;
+  }
+
+  .post__excerpt {
+    color: var(--slate);
+    font-size: var(--fz-sm);
+    font-family: var(--font-mono);
+    margin-top: 8px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post__read-more {
+    ${({ theme }) => theme.mixins.inlineLink};
+    margin-top: 20px;
+    font-size: var(--fz-sm);
+    font-weight: 600;
+    width: fit-content;
   }
 
   .post__date {
@@ -214,28 +258,44 @@ const PensieveList = ({ location, data, pageContext }) => {
               return (
                 <StyledPost key={i}>
                   <div className="post__inner">
-                    <header>
-                      <div className="post__icon">
-                        <IconBookmark />
+                    {node.cover && (
+                      <div className="post__image">
+                        <img src={node.cover} alt={title} />
                       </div>
-                      <h5 className="post__title">
-                        <Link to={formattedSlug}>{title}</Link>
-                      </h5>
-                      <p className="post__desc">{description}</p>
-                    </header>
+                    )}
 
-                    <footer>
-                      <span className="post__date">{formattedDate}</span>
-                      <ul className="post__tags">
-                        {parsedTags.map((tag, i) => (
-                          <li key={i}>
-                            <Link to={`/pensieve/tags/${kebabCase(tag)}/`} className="inline-link">
-                              #{tag}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </footer>
+                    <div className="post__content">
+                      <header>
+                        <h5 className="post__title">
+                          <Link to={formattedSlug}>{title}</Link>
+                        </h5>
+                        <p className="post__desc">{description}</p>
+                        {node.content && (
+                          <p className="post__excerpt">
+                            {node.content.replace(/<[^>]+>/g, '').substring(0, 120)}...
+                          </p>
+                        )}
+                      </header>
+
+                      <div>
+                        <Link to={formattedSlug} className="post__read-more">
+                          Read More &rarr;
+                        </Link>
+
+                        <footer>
+                          <span className="post__date">{formattedDate}</span>
+                          <ul className="post__tags">
+                            {parsedTags.map((tag, i) => (
+                              <li key={i}>
+                                <Link to={`/pensieve/tags/${kebabCase(tag)}/`} className="inline-link">
+                                  #{tag}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </footer>
+                      </div>
+                    </div>
                   </div>
                 </StyledPost>
               );
@@ -282,6 +342,8 @@ export const pageQuery = graphql`
           slug
           date
           tags
+          cover
+          content
         }
       }
     }

@@ -49,6 +49,8 @@ const StyledPost = styled.li`
   min-width: 300px;
   max-width: 350px;
   flex-shrink: 0;
+  border-radius: 16px;
+  overflow: hidden;
 
   @media (prefers-reduced-motion: no-preference) {
     &:hover,
@@ -68,28 +70,45 @@ const StyledPost = styled.li`
     ${({ theme }) => theme.mixins.boxShadow};
     ${({ theme }) => theme.mixins.flexBetween};
     flex-direction: column;
-    align-items: flex-start;
     position: relative;
     height: 100%;
-    padding: 2rem 1.75rem;
-    border-radius: var(--border-radius);
-    background-color: var(--light-navy);
+    padding: 0;
+    border-radius: 16px;
+    background-color: rgba(17, 34, 64, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 255, 218, 0.1);
     transition: var(--transition);
-    overflow: auto;
-  }
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
-  .project-top {
-    ${({ theme }) => theme.mixins.flexBetween};
-    margin-bottom: 35px;
-
-    .folder {
-      color: var(--green);
-      svg {
-        width: 40px;
-        height: 40px;
-      }
+    &:hover {
+      border: 1px solid rgba(100, 255, 218, 0.3);
+      background-color: rgba(17, 34, 64, 0.6);
     }
   }
+
+  .project-image {
+    width: 100%;
+    height: 220px;
+    background-color: var(--green);
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+      opacity: 0.8;
+    }
+
+    &:hover img {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
 
   .project-title {
     margin: 0 0 10px;
@@ -147,6 +166,22 @@ const StyledPost = styled.li`
       }
     }
   }
+
+  .project-content {
+    padding: 2rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .read-more {
+    ${({ theme }) => theme.mixins.inlineLink};
+    margin-top: 20px;
+    font-size: var(--fz-sm);
+    font-weight: 600;
+    width: fit-content;
+  }
 `;
 
 import { posts as fallbackPosts } from '../../fallbackData';
@@ -199,29 +234,53 @@ const Blog = () => {
             return (
               <StyledPost key={i} ref={el => (revealPosts.current[i] = el)}>
                 <div className="project-inner">
-                  <header>
-                    <div className="project-top">
-                      <div className="folder">
-                        <Icon name="Folder" />
+                  {node.cover && (
+                    <div className="project-image">
+                      <img src={node.cover} alt={title} />
+                    </div>
+                  )}
+
+                  <div className="project-content">
+                    <header>
+                      <h3 className="project-title">
+                        <Link to={formattedSlug}>{title}</Link>
+                      </h3>
+
+                      <div className="project-description">
+                        <p>{description}</p>
                       </div>
+
+                      {node.content && (
+                        <p style={{
+                          color: 'var(--slate)',
+                          fontSize: 'var(--fz-sm)',
+                          fontFamily: 'var(--font-mono)',
+                          marginTop: '8px',
+                          lineHeight: '1.5',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}>
+                          {node.content.replace(/<[^>]+>/g, '').substring(0, 120)}...
+                        </p>
+                      )}
+                    </header>
+
+                    <div>
+                      <Link to={formattedSlug} className="read-more">
+                        Read More &rarr;
+                      </Link>
+
+                      <footer>
+                        <ul className="project-tech-list">
+                          {parsedTags.map((tag, i) => (
+                            <li key={i}>{tag}</li>
+                          ))}
+                        </ul>
+                      </footer>
                     </div>
-
-                    <h3 className="project-title">
-                      <Link to={formattedSlug}>{title}</Link>
-                    </h3>
-
-                    <div className="project-description">
-                      <p>{description}</p>
-                    </div>
-                  </header>
-
-                  <footer>
-                    <ul className="project-tech-list">
-                      {parsedTags.map((tag, i) => (
-                        <li key={i}>{tag}</li>
-                      ))}
-                    </ul>
-                  </footer>
+                  </div>
                 </div>
               </StyledPost>
             );

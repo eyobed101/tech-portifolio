@@ -18,6 +18,21 @@ const StyledPostHeader = styled.header`
     margin-right: 10px;
   }
 `;
+
+const StyledPostCover = styled.div`
+  width: 100%;
+  margin-bottom: 50px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 10px 30px -15px var(--navy-shadow);
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+`;
 const StyledPostContent = styled.div`
   margin-bottom: 100px;
   h1,
@@ -103,29 +118,40 @@ const StyledShare = styled.div`
 
 import { posts as fallbackPosts } from '../fallbackData';
 
-const PostTemplate = ({ data, location }) => {
-  const initialPost = data.databasePost;
-  const slug = initialPost?.slug || '';
+const PostTemplate = ({ data, location, params }) => {
+  // Read slug from URL at runtime — supports both /:slug and context-based rendering
+  const urlSlug =
+    (params && params.slug) ||
+    (location &&
+      location.pathname
+        .replace(/^\/pensieve\//, '')
+        .replace(/\/$/, ''));
+
+  const initialPost = data?.databasePost || null;
+  const slug = urlSlug || initialPost?.slug || '';
 
   const { data: post = initialPost || fallbackPosts[0] } = useQuery(['post', slug], async () => {
-    const res = await api.get(`/api/posts`);
-    const found = res.data.find(p => p.slug === slug || p.slug === slug.replace(/^\//, '') || ('/' + p.slug === slug));
-    return found;
+    const cleanSlug = slug.replace(/^\//, '');
+    const res = await api.get(`/api/posts/${cleanSlug}`);
+    return res.data;
   }, {
     enabled: !!slug,
   });
 
   const { title, date, tags, content, description, cover } = post;
+  const siteUrl = data?.site?.siteMetadata?.siteUrl || 'https://eyobedelias.net.et';
+  const ogImage = cover?.startsWith('http') ? cover : `${siteUrl}${cover || '/og2.png'}`;
+
   let tagsList = [];
   try {
-    tagsList = JSON.parse(tags);
+    tagsList = typeof tags === 'string' ? JSON.parse(tags) : tags;
   } catch (e) {
     if (typeof tags === 'string') tagsList = tags.split(',').map(t => t.trim());
   }
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(title)}`;
-  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : `${siteUrl}/pensieve/${slug}`;
+  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`;
+  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
 
   const [copied, setCopied] = React.useState(false);
   const handleCopy = () => {
@@ -139,13 +165,21 @@ const PostTemplate = ({ data, location }) => {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
+        <link rel="canonical" href={shareUrl} />
+
+        <meta property="og:site_name" content="Eyobed Elias" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="article" />
-        {cover && <meta property="og:image" content={cover} />}
-        {cover && <meta name="twitter:image" content={cover} />}
+        <meta property="og:url" content={shareUrl} />
+        <meta property="og:image" content={ogImage} />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@eyobedelias" />
+        <meta name="twitter:creator" content="@eyobedelias" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
       </Helmet>
 
       <StyledPostContainer>
@@ -155,6 +189,11 @@ const PostTemplate = ({ data, location }) => {
         </span>
 
         <StyledPostHeader>
+          {cover && (
+            <StyledPostCover>
+              <img src={cover} alt={title} />
+            </StyledPostCover>
+          )}
           <h1 className="medium-heading">{title}</h1>
           <p className="subtitle">
             <time>
@@ -201,10 +240,18 @@ export default PostTemplate;
 PostTemplate.propTypes = {
   data: PropTypes.object,
   location: PropTypes.object,
+  params: PropTypes.object,
 };
 
+// Optional query — when rendered via the catch-all matchPath, no slug is passed
+// and the component falls back to reading the slug from the URL at runtime.
 export const pageQuery = graphql`
-  query($slug: String!) {
+  query($slug: String) {
+    site {
+      siteMetadata {
+        siteUrl
+      }
+    }
     databasePost(slug: { eq: $slug }) {
       title
       description

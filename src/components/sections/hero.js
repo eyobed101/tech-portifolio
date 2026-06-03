@@ -43,6 +43,65 @@ const StyledHeroSection = styled.section`
   @media (max-width: 768px) {
     flex-direction: column !important;
     justify-content: center !important;
+
+    .hero-content {
+      align-items: center !important;
+      text-align: center !important;
+      width: 100%;
+
+      /* Add vertical spacing between each animated element */
+      & > div {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+
+      h1, h2, h3, p {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+
+      /* Bigger "Hi, my name is" on mobile */
+      h1, h1.animated-heading {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        text-align: center !important;
+        width: 100%;
+        font-size: clamp(var(--fz-md), 5vw, var(--fz-xl)) !important;
+      }
+
+      /* Bigger name heading */
+      .big-heading {
+        font-size: clamp(48px, 12vw, 72px) !important;
+      }
+
+      /* Bigger subtitle heading */
+      .big-heading-two {
+        font-size: clamp(28px, 8vw, 48px) !important;
+      }
+
+      /* More spacing under description */
+      p {
+        font-size: var(--fz-lg);
+        margin-top: 8px !important;
+        margin-bottom: 4px;
+        max-width: 100%;
+      }
+
+      /* Center the Get In Touch button */
+      .email-link {
+        display: block;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        margin-top: 20px !important;
+        width: fit-content;
+        text-align: center;
+      }
+    }
   }
 
   .hero-content {
@@ -54,8 +113,8 @@ const StyledHeroSection = styled.section`
 
   .hero-3d {
     position: relative;
-    width: 280px;
-    height: 280px;
+    width: 250px;
+    height: 250px;
     z-index: 1;
     flex-shrink: 0;
     margin-top: 30px;
@@ -63,20 +122,20 @@ const StyledHeroSection = styled.section`
     @media (max-width: 768px) {
       width: 180px;
       height: 180px;
-      margin: 40px auto;
+      margin: 20px auto;
       align-self: center;
       order: -1;
     }
 
     @media (min-width: 768px) {
-      width: 340px;
-      height: 340px;
+      width: 300px;
+      height: 300px;
       margin-top: 0;
     }
 
     @media (min-width: 1080px) {
-      width: 400px;
-      height: 400px;
+      width: 340px;
+      height: 340px;
     }
 
     .pic-wrapper {
