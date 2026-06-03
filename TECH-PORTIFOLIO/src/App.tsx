@@ -92,6 +92,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<PortfolioHome />} />
             <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/blog" element={<BlogsPage />} />
             <Route path="/blog/:slug" element={<PostDetail />} />
             <Route path="*" element={<PortfolioHome />} />
           </Routes>
