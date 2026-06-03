@@ -165,7 +165,8 @@ function FeaturedCard({ proj, index, inView }: { proj: FeaturedProject | Omit<Fe
             <img
               src={proj.cover}
               alt={proj.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02] p-4"
+              style={{ background: 'var(--surface-2)' }}
             />
           ) : (
             <div
