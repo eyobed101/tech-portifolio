@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+﻿import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useInView } from '../lib/hooks'
 import { parseSkills } from '../lib/api'
 import type { Profile, SkillCategory } from '../types'
@@ -15,73 +15,56 @@ const FALLBACK_SKILLS: SkillCategory[] = [
   { category: 'Security',   items: ['HMAC Auth', 'OAuth 2.0', 'JWT', 'Threat Hunting', 'NIDS', 'Antivirus R&D'] },
 ]
 
-const CAT_ACCENT: Record<string, { color: string; glow: string; bg: string; icon: string }> = {
-  Languages:  { color: '#f59e0b', glow: 'rgba(245,158,11,0.18)',  bg: 'rgba(245,158,11,0.08)',  icon: '{ }' },
-  Frontend:   { color: '#3b82f6', glow: 'rgba(59,130,246,0.18)',  bg: 'rgba(59,130,246,0.08)',  icon: '⬡'   },
-  Backend:    { color: '#10b981', glow: 'rgba(16,185,129,0.18)',  bg: 'rgba(16,185,129,0.08)',  icon: '⚙'   },
-  Databases:  { color: '#8b5cf6', glow: 'rgba(139,92,246,0.18)',  bg: 'rgba(139,92,246,0.08)',  icon: '◈'   },
-  DevOps:     { color: '#06b6d4', glow: 'rgba(6,182,212,0.18)',   bg: 'rgba(6,182,212,0.08)',   icon: '▲'   },
-  Security:   { color: '#ef4444', glow: 'rgba(239,68,68,0.18)',   bg: 'rgba(239,68,68,0.08)',   icon: '⬡'   },
+const CAT_ACCENT: Record<string, string> = {
+  Languages: '#f59e0b',
+  Frontend:  '#3b82f6',
+  Backend:   '#10b981',
+  Databases: '#8b5cf6',
+  DevOps:    '#06b6d4',
+  Security:  '#ef4444',
 }
-const DEFAULT_ACCENT = { color: '#3b82f6', glow: 'rgba(59,130,246,0.18)', bg: 'rgba(59,130,246,0.08)', icon: '·' }
 
-// ── Animated tech pill ────────────────────────────────────────────────────────
-function TechPill({ label, accent, delay }: {
-  label: string
-  accent: { color: string; glow: string; bg: string }
-  delay: number
-}) {
-  const [hovered, setHovered] = useState(false)
+function Tag({ label, color, delay }: { label: string; color: string; delay: number }) {
+  const [hov, setHov] = useState(false)
   return (
     <motion.span
-      initial={{ opacity: 0, y: 8, scale: 0.92 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -4, scale: 0.92 }}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22, delay, ease: 'easeOut' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium cursor-default select-none"
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium cursor-default select-none"
       style={{
-        background:  hovered ? accent.bg   : 'var(--surface-2)',
-        color:       hovered ? accent.color : 'var(--text-muted)',
-        border:      `1px solid ${hovered ? accent.color + '55' : 'var(--border)'}`,
-        boxShadow:   hovered ? `0 0 18px ${accent.glow}` : 'none',
-        transform:   hovered ? 'translateY(-2px)' : 'translateY(0)',
-        transition:  'all 0.18s ease',
-        fontFamily:  'var(--font-sans)',
+        background:  hov ? color + '15' : 'var(--surface-2)',
+        color:       hov ? color        : 'var(--text-muted)',
+        border:      `1px solid ${hov ? color + '45' : 'var(--border)'}`,
+        transform:   hov ? 'translateY(-1px)' : 'translateY(0)',
+        boxShadow:   hov ? `0 4px 14px ${color}20` : 'none',
+        transition:  'all .15s ease',
       }}
     >
-      <span
-        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-        style={{ background: hovered ? accent.color : 'var(--text-muted)', opacity: hovered ? 1 : 0.4, transition: 'all 0.18s ease' }}
-      />
       {label}
     </motion.span>
   )
 }
 
-// ── Full-width skills block ───────────────────────────────────────────────────
-function SkillsVisualizer({ skills, inView }: { skills: SkillCategory[]; inView: boolean }) {
-  const [activeIdx, setActiveIdx] = useState(0)
-  const active = skills[activeIdx]
-  const accent = CAT_ACCENT[active.category] || DEFAULT_ACCENT
-
+function SkillsGrid({ skills, inView }: { skills: SkillCategory[]; inView: boolean }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: 0.35, ease: 'easeOut' }}
+      transition={{ duration: 0.55, delay: 0.2, ease: 'easeOut' }}
       className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+      style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}
     >
-      {/* ── Header row ── */}
       <div
-        className="flex items-center justify-between px-7 pt-6 pb-4"
+        className="flex items-center justify-between px-6 py-4"
         style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <div>
-          <p className="text-xs font-mono mb-0.5" style={{ color: 'var(--primary)' }}>stack</p>
-          <h3 className="text-base font-bold" style={{ color: 'var(--text)' }}>Technologies I Work With</h3>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono" style={{ color: 'var(--primary)' }}>stack</span>
+          <span className="w-px h-3" style={{ background: 'var(--border)' }} />
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Technologies I Work With</h3>
         </div>
         <span
           className="text-xs font-mono px-2.5 py-1 rounded-full"
@@ -91,115 +74,68 @@ function SkillsVisualizer({ skills, inView }: { skills: SkillCategory[]; inView:
         </span>
       </div>
 
-      {/* ── Category selector — wrapping pill grid ── */}
-      <div className="px-7 pt-5 pb-0">
-        <div
-          className="flex flex-wrap gap-2.5"
-          role="tablist"
-          aria-label="Technology categories"
-        >
-          {skills.map((cat, i) => {
-            const ca = CAT_ACCENT[cat.category] || DEFAULT_ACCENT
-            const isActive = i === activeIdx
-            return (
-              <button
-                key={cat.category}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setActiveIdx(i)}
-                className="relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
-                style={{
-                  background:   isActive ? ca.bg   : 'var(--surface-2)',
-                  color:        isActive ? ca.color : 'var(--text-muted)',
-                  border:       `1px solid ${isActive ? ca.color + '55' : 'var(--border)'}`,
-                  boxShadow:    isActive ? `0 0 20px ${ca.glow}` : 'none',
-                  transform:    isActive ? 'translateY(-1px)' : 'none',
-                }}
-              >
-                {/* colored dot */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3" style={{ borderColor: 'var(--border)' }}>
+        {skills.map((cat, ci) => {
+          const color = CAT_ACCENT[cat.category] ?? '#3b82f6'
+          return (
+            <div
+              key={cat.category}
+              className="p-5 flex flex-col gap-3"
+              style={{ borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
                 <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: ca.color, opacity: isActive ? 1 : 0.4 }}
-                />
-                {cat.category}
-                {/* count badge */}
+                  className="text-xs font-semibold tracking-widest uppercase"
+                  style={{ color, letterSpacing: '0.08em' }}
+                >
+                  {cat.category}
+                </span>
                 <span
-                  className="ml-0.5 px-1.5 py-0.5 rounded-full font-mono leading-none"
-                  style={{
-                    fontSize: '0.65rem',
-                    background: isActive ? ca.color + '25' : 'var(--border)',
-                    color:      isActive ? ca.color : 'var(--text-muted)',
-                  }}
+                  className="ml-auto text-xs font-mono"
+                  style={{ color: 'var(--text-muted)', opacity: 0.5 }}
                 >
                   {cat.items.length}
                 </span>
+              </div>
 
-                {/* active bottom indicator */}
-                {isActive && (
-                  <motion.span
-                    layoutId="cat-underline"
-                    className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full"
-                    style={{ background: ca.color }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              <motion.div
+                initial={{ width: 0 }}
+                animate={inView ? { width: `${Math.min(100, (cat.items.length / 8) * 100)}%` } : {}}
+                transition={{ duration: 0.6, delay: 0.3 + ci * 0.07, ease: 'easeOut' }}
+                className="h-px rounded-full"
+                style={{ background: `linear-gradient(90deg, ${color}, transparent)` }}
+              />
+
+              <div className="flex flex-wrap gap-1.5">
+                {cat.items.map((item, ii) => (
+                  <Tag
+                    key={item}
+                    label={item}
+                    color={color}
+                    delay={inView ? 0.35 + ci * 0.06 + ii * 0.04 : 0}
                   />
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── Active panel ── */}
-      <div className="px-7 pt-5 pb-6">
-        {/* progress bar */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 h-px rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
-            <motion.div
-              key={active.category}
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(100, (active.items.length / 8) * 100)}%` }}
-              transition={{ duration: 0.55, ease: 'easeOut' }}
-              className="h-full rounded-full"
-              style={{ background: `linear-gradient(90deg, ${accent.color}, ${accent.color}60)` }}
-            />
-          </div>
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={active.category}
-              initial={{ opacity: 0, x: 6 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -6 }}
-              transition={{ duration: 0.2 }}
-              className="text-xs font-semibold font-mono flex-shrink-0"
-              style={{ color: accent.color }}
-            >
-              {active.category}
-            </motion.span>
-          </AnimatePresence>
-        </div>
-
-        {/* pills */}
-        <AnimatePresence mode="wait">
-          <motion.div key={active.category} className="flex flex-wrap gap-2">
-            {active.items.map((item, i) => (
-              <TechPill key={item} label={item} accent={accent} delay={i * 0.04} />
-            ))}
-          </motion.div>
-        </AnimatePresence>
+                ))}
+              </div>
+            </div>
+          )
+        })}
       </div>
     </motion.div>
   )
 }
 
-// ── Main export ───────────────────────────────────────────────────────────────
 export default function About({ profile }: Props) {
   const { ref, inView } = useInView()
   const apiSkills: SkillCategory[] = parseSkills(profile?.aboutSkills)
   const skills = apiSkills.length > 0 ? apiSkills : FALLBACK_SKILLS
 
-  const item = {
-    hidden:   { y: 24, opacity: 0 },
-    visible:  { y: 0, opacity: 1, transition: { duration: 0.55, ease: 'easeOut' as const } },
+  const fade = {
+    hidden:  { opacity: 0, y: 20 },
+    visible: (d: number) => ({
+      opacity: 1, y: 0,
+      transition: { duration: 0.5, delay: d * 0.1, ease: 'easeOut' as const },
+    }),
   }
 
   return (
@@ -211,62 +147,63 @@ export default function About({ profile }: Props) {
           <div className="line" />
         </div>
 
-        <div ref={ref as React.RefObject<HTMLDivElement>}>
-          {/* ── Row 1: bio + stats (full width) ── */}
-          <motion.div
-            initial="hidden"
-            animate={inView ? 'visible' : 'hidden'}
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
-            className="grid lg:grid-cols-2 gap-12 mb-14"
-          >
-            {/* bio */}
-            <div className="space-y-5">
-              <motion.p variants={item} className="text-base leading-[1.85]" style={{ color: 'var(--text-muted)' }}>
-                Hello! I'm{' '}
-                <strong style={{ color: 'var(--text)' }}>Eyobed</strong>{' '}
-                — a developer who crafts digital experiences with purpose. My fascination began when I first merged logic and creativity through code. Today, I build full-stack applications that balance elegant interfaces with resilient backends, fueled by a love for problem-solving and a drive to make technology meaningful.
-              </motion.p>
-              <motion.p variants={item} className="text-base leading-[1.85]" style={{ color: 'var(--text-muted)' }}>
-                Fast-forward to today, and I've had the privilege of working at a{' '}
-                <strong style={{ color: 'var(--text)' }}>national cybersecurity agency</strong>, a{' '}
-                <strong style={{ color: 'var(--text)' }}>start-up</strong>, a{' '}
-                <strong style={{ color: 'var(--text)' }}>fintech company</strong>, and an{' '}
-                <strong style={{ color: 'var(--text)' }}>AI platform</strong>. My main focus is building accessible, secure products at the intersection of software engineering and cybersecurity.
-              </motion.p>
-              <motion.p variants={item} className="text-base leading-[1.85]" style={{ color: 'var(--text-muted)' }}>
-                When I'm not writing code, I'm researching emerging threats, contributing to national security infrastructure, and exploring the intersection of technology and reformed theology.
-              </motion.p>
+        <div ref={ref as React.RefObject<HTMLDivElement>} className="space-y-14">
+          <div className="grid lg:grid-cols-5 gap-12">
+            <div className="lg:col-span-3 space-y-5">
+              {([
+                <p key={0} className="text-base leading-[1.9]" style={{ color: 'var(--text-muted)' }}>Hello! I&apos;m <strong style={{ color: 'var(--text)' }}>Eyobed</strong> — a developer who crafts digital experiences with purpose. My fascination began when I first merged logic and creativity through code. I build full-stack applications that balance elegant interfaces with resilient backends, fueled by a love for problem-solving.</p>,
+                <p key={1} className="text-base leading-[1.9]" style={{ color: 'var(--text-muted)' }}>I&apos;ve had the privilege of working at a <strong style={{ color: 'var(--text)' }}>national cybersecurity agency</strong>, a <strong style={{ color: 'var(--text)' }}>start-up</strong>, a <strong style={{ color: 'var(--text)' }}>fintech company</strong>, and an <strong style={{ color: 'var(--text)' }}>AI platform</strong>. My focus is building accessible, secure products at the intersection of software engineering and cybersecurity.</p>,
+                <p key={2} className="text-base leading-[1.9]" style={{ color: 'var(--text-muted)' }}>When I&apos;m not writing code, I&apos;m researching emerging threats, contributing to national security infrastructure, and exploring the intersection of technology and reformed theology.</p>,
+              ] as React.ReactNode[]).map((para, i) => (
+                <motion.div
+                  key={i}
+                  custom={i}
+                  variants={fade}
+                  initial="hidden"
+                  animate={inView ? 'visible' : 'hidden'}
+                >
+                  {para}
+                </motion.div>
+              ))}
             </div>
 
-            {/* stats */}
-            <motion.div variants={item} className="flex flex-col justify-center gap-5">
+            <div className="lg:col-span-2 space-y-3">
               {[
-                { value: '4+',  label: 'Years of professional experience',   sub: 'Since 2020' },
-                { value: '15+', label: 'Projects shipped to production',     sub: 'Across 5 domains' },
-                { value: '3',   label: 'Active professional roles',          sub: 'CTO · Developer · Researcher' },
-              ].map(({ value, label, sub }) => (
-                <div
+                { value: '4+',  label: 'Years experience',  sub: 'Since 2020',                   color: '#3b82f6' },
+                { value: '15+', label: 'Projects shipped',  sub: 'Across 5 domains',              color: '#10b981' },
+                { value: '3',   label: 'Active roles',      sub: 'CTO · Developer · Researcher',  color: '#8b5cf6' },
+              ].map(({ value, label, sub, color }, i) => (
+                <motion.div
                   key={label}
-                  className="flex items-center gap-5 p-5 rounded-xl"
+                  custom={i + 1}
+                  variants={fade}
+                  initial="hidden"
+                  animate={inView ? 'visible' : 'hidden'}
+                  className="flex items-center gap-4 p-4 rounded-xl transition-all duration-200"
                   style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = color + '55'
+                    e.currentTarget.style.boxShadow = `0 4px 20px ${color}18`
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'var(--border)'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }}
                 >
-                  <div
-                    className="text-3xl font-black flex-shrink-0 w-16 text-center gradient-text"
-                    style={{ fontFamily: 'var(--font-sans)', letterSpacing: '-0.03em' }}
-                  >
+                  <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: color }} />
+                  <span className="text-2xl font-black flex-shrink-0 w-12" style={{ color, letterSpacing: '-0.03em' }}>
                     {value}
-                  </div>
-                  <div>
+                  </span>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{label}</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{sub}</p>
+                    <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>{sub}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
-          {/* ── Row 2: full-width skills visualizer ── */}
-          <SkillsVisualizer skills={skills} inView={inView} />
+          <SkillsGrid skills={skills} inView={inView} />
         </div>
       </div>
     </section>
