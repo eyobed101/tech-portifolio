@@ -18,110 +18,78 @@ function useRoleCycle() {
   return ROLES[idx]
 }
 
-// ── Orbiting skill chip ───────────────────────────────────────────────────────
-function OrbitChip({
-  label,
-  color,
+// ── Single orbit ring with evenly distributed chips ───────────────────────────
+function OrbitRing({
+  skills,
   radius,
-  startAngle: angle,  duration,
-  size = 28,
-  delay = 0,
+  duration,
+  ccw = false,
+  entryDelay = 0,
 }: {
-  label: string
-  color: string
+  skills: { label: string; color: string }[]
   radius: number
-  angle: number
   duration: number
-  size?: number
-  delay?: number
+  ccw?: boolean
+  entryDelay?: number
 }) {
+  const count = skills.length
+  const size = radius * 2
+
   return (
     <motion.div
-      className="absolute flex items-center justify-center"
+      className="absolute"
       style={{
-        width: 0,
-        height: 0,
+        width: size,
+        height: size,
         top: '50%',
         left: '50%',
+        marginTop: -radius,
+        marginLeft: -radius,
       }}
-      animate={{ rotate: 360 }}
-      transition={{ duration, repeat: Infinity, ease: 'linear', delay }}
+      animate={{ rotate: ccw ? -360 : 360 }}
+      transition={{ duration, repeat: Infinity, ease: 'linear' }}
     >
-      {/* arm */}
-      <motion.div
-        style={{
-          position: 'absolute',
-          transformOrigin: '0 0',
-          transform: `rotate(${angle}deg) translateX(${radius}px)`,
-        }}
-        animate={{ rotate: -360 }}
-        transition={{ duration, repeat: Infinity, ease: 'linear', delay }}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: delay + 0.4, duration: 0.4, ease: 'easeOut' }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap"
-          style={{
-            background: color + '18',
-            color,
-            border: `1px solid ${color}40`,
-            backdropFilter: 'blur(8px)',
-            boxShadow: `0 4px 16px ${color}20`,
-            transform: 'translate(-50%, -50%)',
-          }}
-          whileHover={{ scale: 1.12, boxShadow: `0 6px 24px ${color}40` }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
-          {label}
-        </motion.div>
-      </motion.div>
-    </motion.div>
-  )
-}
+      {skills.map(({ label, color }, i) => {
+        const angleDeg = (i / count) * 360 - 90
+        const rad = (angleDeg * Math.PI) / 180
+        const cx = radius + radius * Math.cos(rad)
+        const cy = radius + radius * Math.sin(rad)
 
-// ── Floating stat card ────────────────────────────────────────────────────────
-function FloatCard({
-  value,
-  label,
-  color,
-  x,
-  y,
-  delay,
-}: {
-  value: string
-  label: string
-  color: string
-  x: string
-  y: string
-  delay: number
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8, y: 10 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ delay, duration: 0.5, ease: 'easeOut' }}
-      className="absolute flex items-center gap-3 px-4 py-3 rounded-xl"
-      style={{
-        left: x,
-        top: y,
-        background: 'var(--surface)',
-        border: `1px solid ${color}30`,
-        boxShadow: `0 8px 32px ${color}15`,
-        backdropFilter: 'blur(12px)',
-        zIndex: 10,
-        minWidth: '130px',
-      }}
-    >
-      <div
-        className="w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center"
-        style={{ background: color + '18' }}
-      >
-        <span className="text-lg font-black" style={{ color, letterSpacing: '-0.04em' }}>{value}</span>
-      </div>
-      <span className="text-xs font-medium leading-tight" style={{ color: 'var(--text-muted)' }}>
-        {label}
-      </span>
+        return (
+          <motion.div
+            key={label}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: entryDelay + i * 0.07, duration: 0.3, ease: 'easeOut' }}
+            style={{
+              position: 'absolute',
+              left: cx,
+              top: cy,
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            {/* counter-rotate so label stays upright */}
+            <motion.div
+              animate={{ rotate: ccw ? 360 : -360 }}
+              transition={{ duration, repeat: Infinity, ease: 'linear' }}
+            >
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap select-none"
+                style={{
+                  background: 'var(--surface)',
+                  color,
+                  border: `1px solid ${color}45`,
+                  boxShadow: `0 2px 10px ${color}22`,
+                  cursor: 'default',
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                {label}
+              </div>
+            </motion.div>
+          </motion.div>
+        )
+      })}
     </motion.div>
   )
 }
@@ -130,124 +98,93 @@ function FloatCard({
 function HeroVisual({ profile, mounted }: { profile: Profile | null; mounted: boolean }) {
   if (!mounted) return null
 
-  const ORBIT_1 = [
-    { label: 'React.js',    color: '#61dafb', angle: 0,   duration: 18, delay: 0 },
-    { label: 'TypeScript',  color: '#3178c6', angle: 120, duration: 18, delay: 0 },
-    { label: 'Node.js',     color: '#539e43', angle: 240, duration: 18, delay: 0 },
+  const RING_1 = [
+    { label: 'React.js',    color: '#61dafb' },
+    { label: 'TypeScript',  color: '#3178c6' },
+    { label: 'Node.js',     color: '#539e43' },
+    { label: 'Python',      color: '#f59e0b' },
   ]
-  const ORBIT_2 = [
-    { label: 'Security',    color: '#ef4444', angle: 60,  duration: 26, delay: 0.3 },
-    { label: 'Docker',      color: '#2496ed', angle: 150, duration: 26, delay: 0.3 },
-    { label: 'AWS',         color: '#ff9900', angle: 240, duration: 26, delay: 0.3 },
-    { label: 'PostgreSQL',  color: '#336791', angle: 330, duration: 26, delay: 0.3 },
+  const RING_2 = [
+    { label: 'Next.js',     color: '#94a3b8' },
+    { label: 'Laravel',     color: '#ef4444' },
+    { label: 'Docker',      color: '#2496ed' },
+    { label: 'MongoDB',     color: '#47a248' },
+    { label: 'JWT / OAuth', color: '#8b5cf6' },
   ]
+  const RING_3 = [
+    { label: 'AWS',          color: '#ff9900' },
+    { label: 'PostgreSQL',   color: '#336791' },
+    { label: 'Socket.IO',    color: '#010101' },
+    { label: 'Threat Hunt',  color: '#06b6d4' },
+    { label: 'Redis',        color: '#dc2626' },
+    { label: 'CI / CD',      color: '#10b981' },
+  ]
+
+  const RADII  = [100, 170, 240]
+  const RINGS  = [RING_1, RING_2, RING_3]
+  const W      = RADII[2] * 2 + 120   // 600px — fits all chips
+  const H      = W
 
   return (
-    <div className="relative flex items-center justify-center" style={{ height: '480px' }}>
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: W, height: H }}
+    >
+      {/* central glow */}
+      <div className="absolute rounded-full pointer-events-none" aria-hidden="true"
+        style={{ width: 220, height: 220, background: 'radial-gradient(circle, var(--glow) 0%, transparent 70%)', filter: 'blur(40px)' }} />
 
-      {/* Faint orbit rings */}
-      {[140, 210].map((r, i) => (
-        <div
-          key={r}
-          className="absolute rounded-full pointer-events-none"
-          aria-hidden="true"
-          style={{
-            width: r * 2, height: r * 2,
-            border: `1px dashed var(--border)`,
-            opacity: i === 0 ? 0.5 : 0.3,
-          }}
+      {/* dashed guide rings */}
+      {RADII.map(r => (
+        <div key={r} className="absolute rounded-full pointer-events-none" aria-hidden="true"
+          style={{ width: r * 2, height: r * 2, border: '1px dashed var(--border)', opacity: 0.22 }} />
+      ))}
+
+      {/* orbit rings */}
+      {RINGS.map((ring, i) => (
+        <OrbitRing
+          key={i}
+          skills={ring}
+          radius={RADII[i]}
+          duration={18 + i * 10}
+          ccw={i % 2 !== 0}
+          entryDelay={0.4 + i * 0.35}
         />
       ))}
 
-      {/* Outer glow */}
-      <div
-        className="absolute rounded-full pointer-events-none"
-        aria-hidden="true"
-        style={{
-          width: 300, height: 300,
-          background: 'radial-gradient(circle, var(--glow) 0%, transparent 70%)',
-          filter: 'blur(32px)',
-        }}
-      />
-
-      {/* Inner orbit chips */}
-      {ORBIT_1.map(o => (
-        <OrbitChip key={o.label} {...o} radius={140} size={28} />
-      ))}
-
-      {/* Outer orbit chips */}
-      {ORBIT_2.map(o => (
-        <OrbitChip key={o.label} {...o} radius={210} size={26} />
-      ))}
-
-      {/* Center avatar */}
+      {/* center avatar */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.6 }}
+        initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="relative z-10 flex items-center justify-center"
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="relative z-10"
         style={{
-          width: 130, height: 130,
+          width: 100, height: 100,
           borderRadius: '50%',
           background: 'var(--surface)',
           border: '3px solid var(--primary)',
           boxShadow: '0 0 48px var(--glow)',
           overflow: 'hidden',
+          flexShrink: 0,
         }}
       >
         {profile?.aboutImage ? (
-          <img
-            src={profile.aboutImage}
-            alt="Eyobed Elias"
-            className="w-full h-full object-cover"
-          />
+          <img src={profile.aboutImage} alt="Eyobed Elias" className="w-full h-full object-cover" />
         ) : (
-          <LogoMark size={56} />
+          <div className="w-full h-full flex items-center justify-center">
+            <LogoMark size={44} />
+          </div>
         )}
       </motion.div>
 
-      {/* Pulsing ring around avatar */}
-      <motion.div
-        className="absolute rounded-full pointer-events-none"
-        aria-hidden="true"
-        style={{ width: 150, height: 150, border: '1px solid var(--primary)', borderRadius: '50%' }}
-        animate={{ scale: [1, 1.18, 1], opacity: [0.6, 0, 0.6] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute rounded-full pointer-events-none"
-        aria-hidden="true"
-        style={{ width: 150, height: 150, border: '1px solid var(--secondary)', borderRadius: '50%' }}
-        animate={{ scale: [1, 1.32, 1], opacity: [0.4, 0, 0.4] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-      />
-
-      {/* Floating stat cards */}
-      <FloatCard value="4+"  label="Years Experience" color="#3b82f6" x="-20px"   y="20px"  delay={0.8} />
-      <FloatCard value="15+" label="Projects Shipped"  color="#10b981" x="55%"    y="10px"  delay={1.0} />
-      <FloatCard value="3"   label="Active Roles"      color="#8b5cf6" x="10%"    y="78%"   delay={1.2} />
-
-      {/* Status badge */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4 }}
-        className="absolute flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-medium"
-        style={{
-          right: '0px', bottom: '10%',
-          background: 'rgba(16,185,129,0.12)',
-          border: '1px solid rgba(16,185,129,0.3)',
-          color: '#10b981',
-        }}
-      >
-        <motion.span
-          animate={{ opacity: [1, 0.3, 1] }}
-          transition={{ duration: 1.6, repeat: Infinity }}
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ background: '#10b981', display: 'inline-block' }}
+      {/* pulse rings */}
+      {[0, 0.8].map((d, i) => (
+        <motion.div key={i} className="absolute rounded-full pointer-events-none" aria-hidden="true"
+          style={{ width: 116, height: 116, border: `1.5px solid ${i === 0 ? 'var(--primary)' : 'var(--secondary)'}`, borderRadius: '50%' }}
+          animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', delay: d }}
         />
-        Available
-      </motion.div>
+      ))}
     </div>
   )
 }
@@ -276,36 +213,24 @@ export default function Hero({ profile }: Props) {
       className="relative min-h-screen flex flex-col justify-center overflow-hidden"
       aria-label="Hero section"
     >
-      {/* dot grid background */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden="true"
-        style={{
-          backgroundImage: 'radial-gradient(circle, var(--border) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-          opacity: 0.6,
-        }}
-      />
+      {/* dot grid */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
+        style={{ backgroundImage: 'radial-gradient(circle, var(--border) 1px, transparent 1px)', backgroundSize: '32px 32px', opacity: 0.6 }} />
 
       {/* glow orbs */}
-      <div aria-hidden="true" className="absolute pointer-events-none" style={{ top: '15%', left: '5%', width: '480px', height: '480px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 65%)', filter: 'blur(48px)' }} />
-      <div aria-hidden="true" className="absolute pointer-events-none" style={{ bottom: '10%', right: '8%', width: '380px', height: '380px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 65%)', filter: 'blur(48px)' }} />
+      <div aria-hidden="true" className="absolute pointer-events-none"
+        style={{ top: '15%', left: '5%', width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 65%)', filter: 'blur(48px)' }} />
+      <div aria-hidden="true" className="absolute pointer-events-none"
+        style={{ bottom: '10%', right: '8%', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 65%)', filter: 'blur(48px)' }} />
 
       <div className="container relative z-10 pt-24 md:pt-28 pb-16">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-          {/* ── Left: text ── */}
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            animate={mounted ? 'visible' : 'hidden'}
-            className="flex flex-col"
-          >
+          {/* ── Left text ── */}
+          <motion.div variants={stagger} initial="hidden" animate={mounted ? 'visible' : 'hidden'} className="flex flex-col">
             <motion.div variants={item} className="flex items-center gap-3 mb-5">
-              <span
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium"
-                style={{ background: 'rgba(59,130,246,0.1)', color: 'var(--primary)', border: '1px solid rgba(59,130,246,0.2)' }}
-              >
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium"
+                style={{ background: 'rgba(59,130,246,0.1)', color: 'var(--primary)', border: '1px solid rgba(59,130,246,0.2)' }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--primary)' }} />
                 Available for opportunities
               </span>
@@ -318,22 +243,18 @@ export default function Hero({ profile }: Props) {
 
             <motion.div variants={item} className="mb-5 h-9 overflow-hidden">
               <AnimatePresence mode="wait">
-                <motion.p
-                  key={role}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
+                <motion.p key={role}
+                  initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }}
                   transition={{ duration: 0.35, ease: 'easeOut' }}
                   className="font-bold"
-                  style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.7rem)', color: 'var(--text-muted)', letterSpacing: '-0.01em' }}
-                >
+                  style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.7rem)', color: 'var(--text-muted)', letterSpacing: '-0.01em' }}>
                   {role}
                 </motion.p>
               </AnimatePresence>
             </motion.div>
 
             <motion.p variants={item} className="text-base leading-relaxed mb-7 max-w-lg" style={{ color: 'var(--text-muted)' }}>
-              {profile?.description || "Building secure, scalable systems across multiple platforms. Leading technical innovation at Tripways while contributing to national cybersecurity at INSA."}
+              {profile?.description || 'Building secure, scalable systems across multiple platforms. Leading technical innovation at Tripways while contributing to national cybersecurity at INSA.'}
             </motion.p>
 
             <motion.div variants={item} className="flex flex-wrap gap-2.5 mb-8">
@@ -387,7 +308,7 @@ export default function Hero({ profile }: Props) {
             initial={{ opacity: 0 }}
             animate={mounted ? { opacity: 1 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="hidden lg:flex items-center justify-center"
+            className="hidden lg:flex items-center justify-center overflow-visible"
           >
             <HeroVisual profile={profile} mounted={mounted} />
           </motion.div>
