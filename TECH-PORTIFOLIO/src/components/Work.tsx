@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useState, useRef } from 'react'
 import { motion, useInView as useFramerInView } from 'framer-motion'
 import { parseTech } from '../lib/api'
 import { ExternalLink, ArrowUpRight, ArrowRight } from 'lucide-react'
@@ -133,199 +133,167 @@ export const FALLBACK_PROJECTS: Omit<Project, 'id' | 'createdAt'>[] = [
 export { PROJECT_TAGS, CAT_COLOR, CATEGORIES, FALLBACK_FEATURED }
 export type { CatKey }
 
-// ── Featured Spotlight Card ──────────────────────────────────────────────────
-function FeaturedCard({ proj, index, inView }: { proj: FeaturedProject | Omit<FeaturedProject, 'id' | 'createdAt'>; index: number; inView: boolean }) {
+// ── Featured Card — vertical layout ─────────────────────────────────────────
+function FeaturedCard({
+  proj,
+  index,
+  inView,
+}: {
+  proj: FeaturedProject | Omit<FeaturedProject, 'id' | 'createdAt'>
+  index: number
+  inView: boolean
+}) {
+  const [hovered, setHovered] = useState(false)
   const tech = parseTech(proj.tech)
-  const initials = proj.title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
   const gradient = PROJ_GRADIENTS[index % PROJ_GRADIENTS.length]
-  const isOdd = index % 2 !== 0
+  const tints = ['#3b82f6', '#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444']
+  const tint = tints[index % tints.length]
 
   return (
     <motion.article
-      initial={{ opacity: 0, x: isOdd ? 40 : -40 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.7, delay: index * 0.18, ease: 'easeOut' }}
-      className="group relative rounded-2xl overflow-hidden"
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex flex-col rounded-2xl overflow-hidden"
       style={{
         background: 'var(--surface)',
-        border: '1px solid var(--border)',
+        border: `1px solid ${hovered ? tint + '50' : 'var(--border)'}`,
+        boxShadow: hovered ? `0 20px 56px ${tint}20` : 'none',
+        transition: 'box-shadow 0.35s ease, border-color 0.25s ease',
       }}
       aria-label={`Featured project: ${proj.title}`}
     >
-      {/* Top accent bar */}
+      {/* ── Image / visual area ── */}
       <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, var(--primary), transparent)' }}
-        aria-hidden="true"
-      />
-
-      <div className="flex flex-col lg:flex-row">
-        {/* ── Visual panel ── */}
+        className="relative flex-shrink-0 overflow-hidden"
+        style={{ height: '200px', background: gradient }}
+      >
+        {/* subtle patterns behind image */}
         <div
-          className={`relative lg:w-[45%] flex-shrink-0 overflow-hidden ${isOdd ? 'lg:order-2' : 'lg:order-1'}`}
-          style={{ minHeight: '280px' }}
-        >
-          {proj.cover ? (
-            <img
-              src={proj.cover}
-              alt={proj.title}
-              className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02] p-4"
-              style={{ background: 'var(--surface-2)' }}
-            />
-          ) : (
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ background: gradient }}
-            >
-              {/* Abstract pattern */}
-              <div className="absolute inset-0 opacity-10" aria-hidden="true"
-                style={{
-                  backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)',
-                  backgroundSize: '32px 32px',
-                }}
-              />
-              {/* Grid lines */}
-              <div className="absolute inset-0 opacity-5" aria-hidden="true"
-                style={{
-                  backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)',
-                  backgroundSize: '40px 40px',
-                }}
-              />
-              {/* Center monogram */}
-              <div className="relative z-10 text-center select-none">
-                <div
-                  className="text-6xl font-black tracking-tighter mb-2"
-                  style={{ color: 'rgba(255,255,255,0.15)', fontFamily: 'var(--font-mono)' }}
-                >
-                  {initials}
-                </div>
-                <div
-                  className="text-xs font-mono tracking-widest uppercase"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
-                  {tech[0]}
-                </div>
-              </div>
-            </div>
-          )}
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
+          aria-hidden="true"
+        />
 
-          {/* Hover overlay with links */}
+        {proj.cover ? (
+          <img
+            src={proj.cover}
+            alt={proj.title}
+            className="absolute inset-0 w-full h-full"
+            style={{
+              objectFit: 'contain',
+              objectPosition: 'center',
+              padding: '12px',
+              transition: 'transform 0.45s ease',
+              transform: hovered ? 'scale(1.03)' : 'scale(1)',
+            }}
+          />
+        ) : (
+          /* no cover — show gradient with glow blob */
           <div
-            className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-300"
-            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-          >
-            {proj.github && (
-              <a
-                href={proj.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${proj.title} on GitHub`}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
-                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}
-              >
-                <GithubIcon size={15} /> Code
-              </a>
-            )}
-            {proj.external && (
-              <a
-                href={proj.external}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${proj.title} live demo`}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
-                style={{ background: 'var(--primary)', color: '#fff' }}
-              >
-                <ExternalLink size={15} /> Live
-              </a>
-            )}
-          </div>
-
-          {/* Index number watermark */}
-          <div
-            className="absolute bottom-3 right-4 font-black font-mono select-none pointer-events-none"
-            style={{ fontSize: '4rem', lineHeight: 1, color: 'rgba(255,255,255,0.06)' }}
+            className="absolute"
+            style={{
+              top: '5%', left: '10%', width: '80%', height: '90%',
+              background: `radial-gradient(circle, ${tint}35 0%, transparent 70%)`,
+              filter: 'blur(30px)',
+            }}
             aria-hidden="true"
-          >
-            {String(index + 1).padStart(2, '0')}
-          </div>
+          />
+        )}
+
+    
+
+      
+      </div>
+
+      {/* ── Content block ── */}
+      <div className="flex flex-col flex-1 p-5 gap-3">
+        {/* title */}
+        <h3
+          className="font-bold leading-snug"
+          style={{
+            fontSize: 'clamp(1rem, 1.8vw, 1.15rem)',
+            color: 'var(--text)',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {proj.title}
+        </h3>
+
+        {/* description — always visible */}
+        <p
+          className="text-xs leading-relaxed flex-1"
+          style={{ color: 'var(--text-muted)', lineHeight: 1.75 }}
+        >
+          {proj.content}
+        </p>
+
+        {/* tech tags */}
+        <div className="flex flex-wrap gap-1.5">
+          {tech.map(t => (
+            <span
+              key={t}
+              className="px-2.5 py-1 rounded-lg text-xs font-mono"
+              style={{
+                background: 'var(--surface-2)',
+                color: 'var(--text-muted)',
+                border: '1px solid var(--border)',
+              }}
+            >
+              {t}
+            </span>
+          ))}
         </div>
 
-        {/* ── Content panel ── */}
-        <div className={`flex-1 p-8 lg:p-10 flex flex-col justify-center ${isOdd ? 'lg:order-1' : 'lg:order-2'}`}>
-          {/* Label row */}
-          <div className="flex items-center gap-3 mb-4">
-            <span
-              className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold tracking-wider"
-              style={{ background: 'var(--surface-2)', color: 'var(--primary)', border: '1px solid var(--border)' }}
+        {/* links */}
+        <div
+          className="flex items-center gap-2 pt-2"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          {proj.external && (
+            <a
+              href={proj.external}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${proj.title} live demo`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:scale-105"
+              style={{ background: tint, color: '#fff' }}
             >
-              Featured Project
-            </span>
-            <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
-              /{String(index + 1).padStart(2, '0')}
-            </span>
-          </div>
-
-          {/* Title */}
-          <h3
-            className="font-bold mb-4 leading-tight transition-colors duration-200 group-hover:text-blue-400"
-            style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.6rem)', color: 'var(--text)' }}
+              <ExternalLink size={12} /> Live Demo
+            </a>
+          )}
+          {proj.github && (
+            <a
+              href={proj.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${proj.title} source`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:scale-105"
+              style={{
+                background: 'var(--surface-2)',
+                color: 'var(--text-muted)',
+                border: '1px solid var(--border)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = tint; e.currentTarget.style.color = tint }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+            >
+              <GithubIcon size={12} /> Source
+            </a>
+          )}
+          <a
+            href={proj.external || proj.github || '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto inline-flex items-center gap-1 text-xs font-medium transition-all duration-200"
+            style={{ color: tint, opacity: hovered ? 1 : 0.6, transition: 'opacity 0.2s' }}
           >
-            {proj.title}
-          </h3>
-
-          {/* Description */}
-          <p
-            className="text-sm leading-[1.8] mb-6"
-            style={{ color: 'var(--text-muted)', maxWidth: '44ch' }}
-          >
-            {proj.content}
-          </p>
-
-          {/* Tech stack */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {tech.map(t => (
-              <span
-                key={t}
-                className="px-2.5 py-1 rounded-md text-xs font-mono transition-colors duration-200"
-                style={{
-                  background: 'var(--surface-2)',
-                  color: 'var(--text-muted)',
-                  border: '1px solid var(--border)',
-                }}
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-
-          {/* Links row */}
-          <div className="flex items-center gap-3 mt-auto">
-            {proj.external && (
-              <a
-                href={proj.external}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 hover:gap-2.5"
-                style={{ color: 'var(--primary)' }}
-              >
-                View Project <ArrowUpRight size={15} />
-              </a>
-            )}
-            {proj.github && (
-              <a
-                href={proj.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${proj.title} source code`}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
-                style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.borderColor = 'var(--primary)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)' }}
-              >
-                <GithubIcon size={15} />
-              </a>
-            )}
-          </div>
+            View <ArrowUpRight size={12} />
+          </a>
         </div>
       </div>
     </motion.article>
@@ -478,8 +446,8 @@ export default function Work({ featured, projects }: Props) {
           <div className="line" />
         </div>
 
-        {/* ── Featured spotlight cards ── */}
-        <div ref={featuredRef} className="space-y-6 mb-24">
+        {/* ── Featured cards — 3-col cinematic grid ── */}
+        <div ref={featuredRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-24">
           {featuredData.map((proj, i) => (
             <FeaturedCard key={'id' in proj ? proj.id : i} proj={proj} index={i} inView={featuredInView} />
           ))}
