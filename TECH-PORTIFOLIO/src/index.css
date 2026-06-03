@@ -330,3 +330,38 @@ body {
   color: var(--text);
   font-weight: 600;
 }
+
+/* ── Galaxy-visible section backgrounds ───────────────────────────────── */
+/* Strip solid backgrounds from sections so the fixed star canvas shows through */
+#hero,
+#about,
+#work,
+#contact {
+  background: transparent !important;
+}
+#experience {
+  background: rgba(17, 24, 39, 0.6) !important;
+}
+[data-theme='light'] #experience {
+  background: rgba(248, 250, 252, 0.7) !important;
+}
+#blog {
+  background: rgba(17, 24, 39, 0.5) !important;
+}
+[data-theme='light'] #blog {
+  background: rgba(241, 245, 249, 0.65) !important;
+}
+
+/* ── Mobile centering ──────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .section-heading {
+    justify-content: center;
+    text-align: center;
+  }
+  .section-heading .line {
+    display: none;
+  }
+  .section-heading .section-number {
+    display: none;
+  }
+}

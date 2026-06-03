@@ -4,9 +4,9 @@ interface Star {
   x: number
   y: number
   radius: number
-  opacity: number
-  speed: number   // upward drift speed
-  twinklePhase: number
+  alpha: number
+  speed: number
+  twinkle: number
   twinkleSpeed: number
 }
 
@@ -21,71 +21,66 @@ export default function GalaxyBackground() {
 
     let animId: number
     let stars: Star[] = []
+    let W = 0
+    let H = 0
 
     const isDark = () =>
       document.documentElement.getAttribute('data-theme') !== 'light'
 
-    const initStars = (w: number, h: number) => {
-      // Spread stars over 3× the page height so they're always flowing
-      stars = Array.from({ length: 260 }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h * 3,
-        radius: Math.random() * 1.4 + 0.2,
-        opacity: Math.random() * 0.55 + 0.1,
-        speed: Math.random() * 0.18 + 0.04,
-        twinklePhase: Math.random() * Math.PI * 2,
-        twinkleSpeed: Math.random() * 0.012 + 0.004,
+    const build = () => {
+      W = window.innerWidth
+      H = window.innerHeight
+      canvas.width  = W
+      canvas.height = H
+      stars = Array.from({ length: 180 }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        radius: Math.random() * 1.6 + 0.3,
+        alpha: Math.random() * 0.6 + 0.2,
+        speed: Math.random() * 0.3 + 0.06,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: Math.random() * 0.015 + 0.005,
       }))
     }
 
-    const resize = () => {
-      canvas.width  = window.innerWidth
-      canvas.height = document.documentElement.scrollHeight
-      initStars(canvas.width, canvas.height)
-    }
-
-    resize()
-
-    const resizeObs = new ResizeObserver(resize)
-    resizeObs.observe(document.documentElement)
-
-    let tick = 0
+    build()
+    window.addEventListener('resize', build)
 
     const draw = () => {
-      tick++
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.clearRect(0, 0, W, H)
 
       const dark = isDark()
-      // Use very subtle colours — visible but never distracting
-      const starColor = dark ? '180,210,255' : '59,130,246'
+      // bright enough to be clearly visible against both themes
+      const rgb = dark ? '160,200,255' : '99,140,240'
+      const mult = dark ? 1 : 0.6
 
-      stars.forEach(s => {
-        // drift upward, wrap around
+      for (const s of stars) {
+        // drift upward
         s.y -= s.speed
-        if (s.y < -4) s.y = canvas.height + 4
+        if (s.y + s.radius < 0) {
+          s.y = H + s.radius
+          s.x = Math.random() * W
+        }
 
-        // gentle twinkle
-        s.twinklePhase += s.twinkleSpeed
-        const twinkle = 0.5 + 0.5 * Math.sin(s.twinklePhase)
-        const alpha = s.opacity * twinkle * (dark ? 0.7 : 0.35)
+        s.twinkle += s.twinkleSpeed
+        const brightness = s.alpha * mult * (0.55 + 0.45 * Math.sin(s.twinkle))
 
+        // core dot
         ctx.beginPath()
         ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${starColor},${alpha.toFixed(3)})`
+        ctx.fillStyle = `rgba(${rgb},${brightness.toFixed(3)})`
         ctx.fill()
-      })
 
-      // sparse larger "nebula" glow dots — very faint
-      if (tick % 3 === 0) {
-        stars.filter(s => s.radius > 1.2).forEach(s => {
-          const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius * 6)
-          grd.addColorStop(0, `rgba(${starColor},${(s.opacity * 0.08).toFixed(3)})`)
-          grd.addColorStop(1, 'rgba(0,0,0,0)')
-          ctx.fillStyle = grd
+        // soft halo on bigger stars
+        if (s.radius > 1.1) {
+          const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius * 5)
+          g.addColorStop(0, `rgba(${rgb},${(brightness * 0.18).toFixed(3)})`)
+          g.addColorStop(1, `rgba(${rgb},0)`)
+          ctx.fillStyle = g
           ctx.beginPath()
-          ctx.arc(s.x, s.y, s.radius * 6, 0, Math.PI * 2)
+          ctx.arc(s.x, s.y, s.radius * 5, 0, Math.PI * 2)
           ctx.fill()
-        })
+        }
       }
 
       animId = requestAnimationFrame(draw)
@@ -95,7 +90,7 @@ export default function GalaxyBackground() {
 
     return () => {
       cancelAnimationFrame(animId)
-      resizeObs.disconnect()
+      window.removeEventListener('resize', build)
     }
   }, [])
 
@@ -105,12 +100,11 @@ export default function GalaxyBackground() {
       aria-hidden="true"
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
+        inset: 0,
+        width: '100vw',
+        height: '100vh',
         pointerEvents: 'none',
-        zIndex: 0,
+        zIndex: 1,
       }}
     />
   )

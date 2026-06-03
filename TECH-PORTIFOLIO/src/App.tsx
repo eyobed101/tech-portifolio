@@ -41,7 +41,7 @@ function PortfolioHome() {
   const { profile, jobs, projects, featured, posts } = usePortfolioData()
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh', position: 'relative', zIndex: 2 }}>
       <a
         href="#about"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] btn-primary"
@@ -90,6 +90,8 @@ export default function App() {
             opacity: loaded ? 1 : 0,
             transition: 'opacity 0.4s ease',
             pointerEvents: loaded ? 'auto' : 'none',
+            position: 'relative',
+            zIndex: 2,
           }}
         >
           <Routes>
