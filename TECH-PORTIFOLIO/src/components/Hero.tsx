@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowDown, Mail, Shield, Code2, ExternalLink, Terminal, Lock } from 'lucide-react'
+import { ArrowDown, Mail, Code2, ExternalLink, Terminal, Lock, Shield } from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from './SocialIcons'
+import LogoMark from './LogoMark'
 import type { Profile } from '../types'
 
 interface Props { profile: Profile | null }
@@ -237,7 +238,7 @@ export default function Hero({ profile }: Props) {
         }}
       />
 
-      <div className="container relative z-10 py-28 pt-36">
+      <div className="container relative z-10 pt-24 md:pt-28 pb-16">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
 
           {/* ── Left: text content ── */}
@@ -379,7 +380,7 @@ export default function Hero({ profile }: Props) {
                   <img src={profile.aboutImage} alt="Eyobed Elias" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--surface-2)' }}>
-                    <Shield size={28} style={{ color: 'var(--primary)', opacity: 0.5 }} />
+                    <LogoMark size={32} />
                   </div>
                 )}
               </div>

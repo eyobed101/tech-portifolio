@@ -1,5 +1,6 @@
-import { Mail, Shield } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import { GithubIcon, LinkedinIcon, TwitterIcon, InstagramIcon } from './SocialIcons'
+import LogoMark from './LogoMark'
 import type { Profile } from '../types'
 
 interface Props { profile: Profile | null }
@@ -21,13 +22,8 @@ export default function Footer({ profile }: Props) {
     >
       <div className="container">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <span
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'var(--primary)' }}
-          >
-            <Shield size={15} color="#fff" />
-          </span>
+        <div className="flex items-center justify-center gap-2.5 mb-6">
+          <LogoMark size={32} />
           <span className="font-bold text-sm" style={{ color: 'var(--text)' }}>
             Eyobed<span style={{ color: 'var(--primary)' }}>.</span>
           </span>

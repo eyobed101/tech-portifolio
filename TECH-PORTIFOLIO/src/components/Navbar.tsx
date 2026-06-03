@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sun, Moon, Menu, X, Shield } from 'lucide-react'
+import { Sun, Moon, Menu, X } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useActiveSection } from '../lib/hooks'
+import LogoMark from './LogoMark'
 
 const NAV_LINKS = [
   { label: 'About', href: '#about' },
@@ -64,14 +65,11 @@ export default function Navbar() {
             <a
               href="#hero"
               onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-2.5 group"
               aria-label="Eyobed Elias — home"
             >
-              <span
-                className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 group-hover:scale-110"
-                style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--glow)' }}
-              >
-                <Shield size={18} color="#fff" />
+              <span className="transition-all duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_var(--primary)]">
+                <LogoMark size={34} />
               </span>
               <span className="font-bold text-base hidden sm:block" style={{ color: 'var(--text)' }}>
                 Eyobed<span style={{ color: 'var(--primary)' }}>.</span>
