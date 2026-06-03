@@ -10,6 +10,7 @@ import Blog from './components/Blog'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import Loader from './components/Loader'
+import GalaxyBackground from './components/GalaxyBackground'
 import PostDetail from './pages/PostDetail'
 import AllProjects from './pages/AllProjects'
 import AllBlogs from './pages/AllBlogs'
@@ -78,7 +79,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        {/* Loader sits above everything; only shown once per session */}
+        {/* Galaxy particle background — fixed, behind everything */}
+        <GalaxyBackground />
+
         {!loaded && <Loader onDone={handleDone} />}
 
         {/* Content renders underneath — visible once loader fades out */}

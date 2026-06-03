@@ -150,14 +150,12 @@ export default function About({ profile }: Props) {
         <div ref={ref as React.RefObject<HTMLDivElement>} className="space-y-14">
           <div className="grid lg:grid-cols-5 gap-12">
             <div className="lg:col-span-3">
-              {/* bio card */}
               <motion.div
                 custom={0}
                 variants={fade}
                 initial="hidden"
                 animate={inView ? 'visible' : 'hidden'}
-                className="rounded-2xl p-7"
-                style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+                className="space-y-0"
               >
                 {/* drop-cap first paragraph */}
                 <p
