@@ -50,7 +50,7 @@ function AvatarOrbit({
         }}
       />
 
-      {/* outbounding pulse rings — 3 staggered */}
+      {/* heartbeat pulse rings — slow outbound on beat */}
       {pulseDelays.map((d, i) => (
         <motion.div
           key={i}
@@ -63,24 +63,25 @@ function AvatarOrbit({
             borderRadius: '50%',
           }}
           animate={{
-            scale: [1, 1.45 + i * 0.15, 1],
-            opacity: [0.55, 0, 0.55],
+            scale: [1, 1.35 + i * 0.18, 1.35 + i * 0.18, 1],
+            opacity: [0.6, 0.35, 0, 0],
           }}
           transition={{
-            duration: 2.8,
+            duration: 3.6,
             repeat: Infinity,
-            ease: 'easeOut',
+            ease: [0.22, 1, 0.36, 1],
             delay: d,
+            times: [0, 0.25, 0.65, 1],
           }}
         />
       ))}
 
-      {/* spinning conic border ring */}
+      {/* slow spinning conic border ring — 20s per revolution */}
       <motion.div
         className="absolute rounded-full pointer-events-none"
         aria-hidden="true"
         animate={{ rotate: 360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
         style={{
           width: avatarSize + 10,
           height: avatarSize + 10,
@@ -92,11 +93,23 @@ function AvatarOrbit({
         }}
       />
 
-      {/* avatar */}
+      {/* avatar — slow heartbeat scale on the image itself */}
       <motion.div
         initial={{ opacity: 0, scale: 0.7 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.55, ease: 'easeOut' }}
+        animate={{
+          opacity: 1,
+          scale: [1, 1.045, 1, 1.03, 1],
+        }}
+        transition={{
+          opacity: { duration: 0.55, ease: 'easeOut' },
+          scale: {
+            duration: 1.8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            times: [0, 0.15, 0.45, 0.6, 1],
+            repeatDelay: 1.8,
+          },
+        }}
         className="relative z-10 rounded-full overflow-hidden"
         style={{
           width: avatarSize,

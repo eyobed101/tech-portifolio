@@ -149,22 +149,77 @@ export default function About({ profile }: Props) {
 
         <div ref={ref as React.RefObject<HTMLDivElement>} className="space-y-14">
           <div className="grid lg:grid-cols-5 gap-12">
-            <div className="lg:col-span-3 space-y-5">
-              {([
-                <p key={0} className="text-base leading-[1.9]" style={{ color: 'var(--text-muted)' }}>Hello! I&apos;m <strong style={{ color: 'var(--text)' }}>Eyobed</strong> — a developer who crafts digital experiences with purpose. My fascination began when I first merged logic and creativity through code. I build full-stack applications that balance elegant interfaces with resilient backends, fueled by a love for problem-solving.</p>,
-                <p key={1} className="text-base leading-[1.9]" style={{ color: 'var(--text-muted)' }}>I&apos;ve had the privilege of working at a <strong style={{ color: 'var(--text)' }}>national cybersecurity agency</strong>, a <strong style={{ color: 'var(--text)' }}>start-up</strong>, a <strong style={{ color: 'var(--text)' }}>fintech company</strong>, and an <strong style={{ color: 'var(--text)' }}>AI platform</strong>. My focus is building accessible, secure products at the intersection of software engineering and cybersecurity.</p>,
-                <p key={2} className="text-base leading-[1.9]" style={{ color: 'var(--text-muted)' }}>When I&apos;m not writing code, I&apos;m researching emerging threats, contributing to national security infrastructure, and exploring the intersection of technology and reformed theology.</p>,
-              ] as React.ReactNode[]).map((para, i) => (
-                <motion.div
-                  key={i}
-                  custom={i}
-                  variants={fade}
-                  initial="hidden"
-                  animate={inView ? 'visible' : 'hidden'}
+            <div className="lg:col-span-3">
+              {/* bio card */}
+              <motion.div
+                custom={0}
+                variants={fade}
+                initial="hidden"
+                animate={inView ? 'visible' : 'hidden'}
+                className="rounded-2xl p-7"
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+              >
+                {/* drop-cap first paragraph */}
+                <p
+                  className="mb-5"
+                  style={{
+                    color: 'var(--text-muted)',
+                    fontSize: '1rem',
+                    lineHeight: '1.9',
+                  }}
                 >
-                  {para}
-                </motion.div>
-              ))}
+                  <span
+                    style={{
+                      float: 'left',
+                      fontSize: '3.6rem',
+                      lineHeight: '0.78',
+                      fontWeight: 900,
+                      marginRight: '0.1em',
+                      marginTop: '0.08em',
+                      color: 'var(--primary)',
+                      fontFamily: 'var(--font-sans)',
+                      letterSpacing: '-0.03em',
+                    }}
+                  >
+                    H
+                  </span>
+                  ello! I&apos;m{' '}
+                  <strong style={{ color: 'var(--text)', fontWeight: 700 }}>Eyobed</strong>{' '}
+                  — a developer who crafts digital experiences with purpose. My fascination
+                  began when I first merged logic and creativity through code. Today I build
+                  full-stack applications that balance elegant interfaces with resilient
+                  backends, fueled by a love for problem-solving.
+                </p>
+
+                {/* divider */}
+                <div
+                  className="my-5"
+                  style={{ height: '1px', background: 'linear-gradient(90deg, var(--primary)30, transparent)' }}
+                  aria-hidden="true"
+                />
+
+                <p
+                  className="mb-5"
+                  style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: '1.9' }}
+                >
+                  I&apos;ve had the privilege of working at a{' '}
+                  <strong style={{ color: 'var(--text)' }}>national cybersecurity agency</strong>,
+                  a{' '}
+                  <strong style={{ color: 'var(--text)' }}>start-up</strong>, a{' '}
+                  <strong style={{ color: 'var(--text)' }}>fintech company</strong>, and an{' '}
+                  <strong style={{ color: 'var(--text)' }}>AI platform</strong>. My focus is
+                  building accessible, secure products at the intersection of software
+                  engineering and cybersecurity.
+                </p>
+
+                <p
+                  style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: '1.9' }}
+                >
+                  When I&apos;m not writing code, I&apos;m researching emerging threats,
+                  contributing to national security infrastructure, and exploring the
+                  intersection of technology and reformed theology.
+                </p>
+              </motion.div>
             </div>
 
             <div className="lg:col-span-2 space-y-3">
