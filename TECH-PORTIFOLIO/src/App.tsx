@@ -12,6 +12,7 @@ import Footer from './components/Footer'
 import Loader from './components/Loader'
 import PostDetail from './pages/PostDetail'
 import AllProjects from './pages/AllProjects'
+import AllBlogs from './pages/AllBlogs'
 import { fetchProfile, fetchJobs, fetchProjects, fetchFeatured, fetchPosts } from './lib/api'
 import type { Profile, Job, Project, FeaturedProject, Post } from './types'
 
@@ -63,6 +64,11 @@ function PortfolioHome() {
 function ProjectsPage() {
   const { projects } = usePortfolioData()
   return <AllProjects projects={projects} />
+}
+
+function BlogsPage() {
+  const { posts } = usePortfolioData()
+  return <AllBlogs posts={posts} />
 }
 
 export default function App() {
