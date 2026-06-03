@@ -10,10 +10,12 @@ import Blog from './components/Blog'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import PostDetail from './pages/PostDetail'
+import AllProjects from './pages/AllProjects'
 import { fetchProfile, fetchJobs, fetchProjects, fetchFeatured, fetchPosts } from './lib/api'
 import type { Profile, Job, Project, FeaturedProject, Post } from './types'
 
-function PortfolioApp() {
+// Shared data state — lifted so projects page can reuse it
+function usePortfolioData() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])
   const [projects, setProjects] = useState<Project[]>([])
@@ -29,6 +31,12 @@ function PortfolioApp() {
       fetchPosts().then(setPosts),
     ])
   }, [])
+
+  return { profile, jobs, projects, featured, posts }
+}
+
+function PortfolioHome() {
+  const { profile, jobs, projects, featured, posts } = usePortfolioData()
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -52,15 +60,20 @@ function PortfolioApp() {
   )
 }
 
+function ProjectsPage() {
+  const { projects } = usePortfolioData()
+  return <AllProjects projects={projects} />
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
         <Routes>
-          <Route path="/" element={<PortfolioApp />} />
+          <Route path="/" element={<PortfolioHome />} />
+          <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/blog/:slug" element={<PostDetail />} />
-          {/* Catch-all back to home */}
-          <Route path="*" element={<PortfolioApp />} />
+          <Route path="*" element={<PortfolioHome />} />
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

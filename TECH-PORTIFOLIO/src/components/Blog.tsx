@@ -95,7 +95,19 @@ function BlogCard({
 }) {
   const tags = parseTags(post.tags)
   const mins = readingTime(post.content)
-  const excerpt = post.description || post.content.replace(/[#`*\n]/g, ' ').trim().slice(0, 110) + '…'
+  // Strip all markdown syntax to get clean plain text for the preview
+  const plainContent = post.content
+    .replace(/```[\s\S]*?```/g, '')          // remove fenced code blocks entirely
+    .replace(/`[^`]+`/g, '')                  // remove inline code
+    .replace(/^#{1,6}\s+/gm, '')              // remove heading markers
+    .replace(/^\s*[-*>]\s+/gm, '')            // remove list/blockquote markers
+    .replace(/\*\*(.+?)\*\*/g, '$1')          // unwrap bold
+    .replace(/\*(.+?)\*/g, '$1')              // unwrap italic
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // unwrap links
+    .replace(/\n+/g, ' ')                     // collapse newlines to spaces
+    .replace(/\s{2,}/g, ' ')                  // collapse extra spaces
+    .trim()
+  const excerpt = post.description || (plainContent.slice(0, 115) + (plainContent.length > 115 ? '…' : ''))
   const primaryTag = tags[0]
   const tagColor = TAG_COLORS[primaryTag] || DEFAULT_TAG_COLOR
 

@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react'
-import { motion, AnimatePresence, useInView as useFramerInView } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useInView as useFramerInView } from 'framer-motion'
 import { parseTech } from '../lib/api'
-import { ExternalLink, ArrowUpRight, Layers, Shield, FlaskConical, LayoutGrid } from 'lucide-react'
+import { ExternalLink, ArrowUpRight, ArrowRight } from 'lucide-react'
 import { GithubIcon } from './SocialIcons'
+import { useNavigate } from 'react-router-dom'
 import type { FeaturedProject, Project } from '../types'
 
 interface Props {
@@ -11,11 +12,11 @@ interface Props {
 }
 
 const CATEGORIES = [
-  { key: 'All',          icon: <LayoutGrid size={13} /> },
-  { key: 'Full Stack',   icon: <Layers size={13} /> },
-  { key: 'Cybersecurity',icon: <Shield size={13} /> },
-  { key: 'Development',  icon: <Layers size={13} /> },
-  { key: 'Research',     icon: <FlaskConical size={13} /> },
+  { key: 'All',           icon: null },
+  { key: 'Full Stack',    icon: null },
+  { key: 'Cybersecurity', icon: null },
+  { key: 'Development',   icon: null },
+  { key: 'Research',      icon: null },
 ]
 
 type CatKey = 'All' | 'Full Stack' | 'Cybersecurity' | 'Development' | 'Research'
@@ -78,7 +79,7 @@ const FALLBACK_FEATURED: Omit<FeaturedProject, 'id' | 'createdAt'>[] = [
   },
 ]
 
-const FALLBACK_PROJECTS: Omit<Project, 'id' | 'createdAt'>[] = [
+export const FALLBACK_PROJECTS: Omit<Project, 'id' | 'createdAt'>[] = [
   {
     title: 'Bus Station Management Platform',
     github: 'https://github.com/eyobed101/IETNEW',
@@ -128,6 +129,9 @@ const FALLBACK_PROJECTS: Omit<Project, 'id' | 'createdAt'>[] = [
     content: 'Node.js utility for estimating file counts on NTFS drives, returns results as JSON via standalone executable.',
   },
 ]
+
+export { PROJECT_TAGS, CAT_COLOR, CATEGORIES, FALLBACK_FEATURED }
+export type { CatKey }
 
 // ── Featured Spotlight Card ──────────────────────────────────────────────────
 function FeaturedCard({ proj, index, inView }: { proj: FeaturedProject | Omit<FeaturedProject, 'id' | 'createdAt'>; index: number; inView: boolean }) {
@@ -329,7 +333,7 @@ function FeaturedCard({ proj, index, inView }: { proj: FeaturedProject | Omit<Fe
 }
 
 // ── Other project card ───────────────────────────────────────────────────────
-function ProjectCard({ proj, index, inView }: { proj: Project | Omit<Project, 'id' | 'createdAt'>; index: number; inView: boolean }) {
+export function ProjectCard({ proj, index, inView }: { proj: Project | Omit<Project, 'id' | 'createdAt'>; index: number; inView: boolean }) {
   const tech = parseTech(proj.tech)
   const tags = PROJECT_TAGS[proj.title] || ['Development']
   const accentColor = CAT_COLOR[tags[0]] || '#3b82f6'
@@ -448,29 +452,23 @@ function ProjectCard({ proj, index, inView }: { proj: Project | Omit<Project, 'i
 
 // ── Main export ──────────────────────────────────────────────────────────────
 export default function Work({ featured, projects }: Props) {
-  const sectionRef = useRef<HTMLElement>(null)
+  const navigate = useNavigate()
   const featuredRef = useRef<HTMLDivElement>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
+  const highlightRef = useRef<HTMLDivElement>(null)
 
   const featuredInView = useFramerInView(featuredRef, { once: true, amount: 0.1 })
-  const gridInView = useFramerInView(gridRef, { once: true, amount: 0.1 })
-
-  const [activeFilter, setActiveFilter] = useState<CatKey>('All')
-  const [showMore, setShowMore] = useState(false)
+  const highlightInView = useFramerInView(highlightRef, { once: true, amount: 0.1 })
 
   const featuredData = featured.length > 0 ? featured : FALLBACK_FEATURED as FeaturedProject[]
-  const projectData = projects.filter(p => p.showInProjects).length > 0
+  const projectData = (projects.filter(p => p.showInProjects).length > 0
     ? projects.filter(p => p.showInProjects)
-    : FALLBACK_PROJECTS as Project[]
+    : FALLBACK_PROJECTS) as Project[]
 
-  const filteredProjects = activeFilter === 'All'
-    ? projectData
-    : projectData.filter(p => (PROJECT_TAGS[p.title] || ['Development']).includes(activeFilter))
-
-  const visibleProjects = showMore ? filteredProjects : filteredProjects.slice(0, 6)
+  // Only show first 3 on home page
+  const highlighted = projectData.slice(0, 3)
 
   return (
-    <section ref={sectionRef} id="work" aria-labelledby="work-heading" className="py-28">
+    <section id="work" aria-labelledby="work-heading" className="py-28">
       <div className="container">
 
         {/* ── Section heading ── */}
@@ -481,79 +479,59 @@ export default function Work({ featured, projects }: Props) {
         </div>
 
         {/* ── Featured spotlight cards ── */}
-        <div ref={featuredRef} className="space-y-6 mb-28">
+        <div ref={featuredRef} className="space-y-6 mb-24">
           {featuredData.map((proj, i) => (
             <FeaturedCard key={'id' in proj ? proj.id : i} proj={proj} index={i} inView={featuredInView} />
           ))}
         </div>
 
-        {/* ── Other projects ── */}
-        <div ref={gridRef}>
-          {/* Sub-heading */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+        {/* ── Highlighted other projects (3 max) ── */}
+        <div ref={highlightRef}>
+          <div className="flex items-end justify-between mb-8">
             <div>
               <p className="text-xs font-mono mb-1" style={{ color: 'var(--primary)' }}>more things I've built</p>
               <h3 className="text-xl font-bold" style={{ color: 'var(--text)' }}>Other Noteworthy Projects</h3>
             </div>
-            <span className="text-xs font-mono px-2.5 py-1 rounded-full" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-              {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''}
-            </span>
           </div>
 
-          {/* Filter pills */}
-          <div className="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filter projects by category">
-            {CATEGORIES.map(({ key, icon }) => {
-              const active = activeFilter === key
-              return (
-                <button
-                  key={key}
-                  onClick={() => { setActiveFilter(key as CatKey); setShowMore(false) }}
-                  aria-pressed={active}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200"
-                  style={{
-                    background: active ? 'var(--primary)' : 'var(--surface)',
-                    color: active ? '#fff' : 'var(--text-muted)',
-                    border: '1px solid',
-                    borderColor: active ? 'var(--primary)' : 'var(--border)',
-                    boxShadow: active ? '0 0 16px var(--glow)' : 'none',
-                  }}
-                >
-                  {icon}
-                  {key}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Cards grid */}
-          <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <AnimatePresence mode="popLayout">
-              {visibleProjects.map((proj, i) => (
-                <motion.div
-                  key={proj.title + i}
-                  layout
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <ProjectCard proj={proj} index={i} inView={gridInView} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Show more */}
-          {filteredProjects.length > 6 && (
-            <div className="text-center mt-10">
-              <button
-                onClick={() => setShowMore(v => !v)}
-                className="btn-outline inline-flex items-center gap-2"
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+            {highlighted.map((proj, i) => (
+              <motion.div
+                key={proj.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={highlightInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4, delay: i * 0.1, ease: 'easeOut' }}
               >
-                {showMore ? 'Show Less' : `Show ${filteredProjects.length - 6} More`}
-              </button>
-            </div>
-          )}
+                <ProjectCard proj={proj} index={i} inView={highlightInView} />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* View all CTA */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => navigate('/projects')}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                background: 'var(--surface)',
+                color: 'var(--text)',
+                border: '1px solid var(--border)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'var(--primary)'
+                e.currentTarget.style.color = 'var(--primary)'
+                e.currentTarget.style.boxShadow = '0 4px 20px var(--glow)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border)'
+                e.currentTarget.style.color = 'var(--text)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              View All Projects
+              <ArrowRight size={15} />
+            </button>
+          </div>
         </div>
       </div>
     </section>
