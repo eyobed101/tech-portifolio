@@ -1,39 +1,13 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowDown, Mail, Code2, ExternalLink, Terminal, Lock, Shield } from 'lucide-react'
+import { ArrowDown, Mail, Code2, ExternalLink, Lock, Shield } from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from './SocialIcons'
 import LogoMark from './LogoMark'
 import type { Profile } from '../types'
 
 interface Props { profile: Profile | null }
 
-// Cycling roles
 const ROLES = ['Software Developer', 'Security Engineer', 'CTO & Tech Lead', 'Detection Engineer']
-
-// Simulated code snippet lines
-const CODE_LINES = [
-  { token: 'import', rest: ' { SecureAuth } from "@eyobed/auth"',    color: '#c084fc' },
-  { token: 'import', rest: ' { APIGateway } from "@eyobed/gateway"', color: '#c084fc' },
-  { token: '',       rest: '',                                         color: '' },
-  { token: 'const',  rest: ' server = new APIGateway({',             color: '#60a5fa' },
-  { token: '',       rest: '  auth: SecureAuth.jwt(),',              color: '#94a3b8' },
-  { token: '',       rest: '  rateLimit: 1000,',                     color: '#94a3b8' },
-  { token: '',       rest: '  encrypt: true,',                       color: '#94a3b8' },
-  { token: '',       rest: '})',                                       color: '#94a3b8' },
-  { token: '',       rest: '',                                         color: '' },
-  { token: 'server', rest: '.listen(443) // 🔒 secured',             color: '#34d399' },
-]
-
-// Simulated security terminal lines
-const THREAT_LINES = [
-  { label: 'SCAN',  msg: 'Starting network sweep on 10.0.0.0/24',   color: '#94a3b8' },
-  { label: 'INFO',  msg: '254 hosts discovered, 12 open ports',      color: '#60a5fa' },
-  { label: 'WARN',  msg: 'Anomalous traffic detected — port 4444',   color: '#fbbf24' },
-  { label: 'ALERT', msg: 'Reverse shell attempt blocked',            color: '#ef4444' },
-  { label: 'OK',    msg: 'Firewall rule deployed successfully',       color: '#34d399' },
-  { label: 'INFO',  msg: 'Threat signature updated — CVE-2024-9999', color: '#60a5fa' },
-  { label: 'OK',    msg: 'System integrity verified ✓',              color: '#34d399' },
-]
 
 function useRoleCycle() {
   const [idx, setIdx] = useState(0)
@@ -44,137 +18,236 @@ function useRoleCycle() {
   return ROLES[idx]
 }
 
-function useLineReveal(count: number, inView: boolean, delay = 600) {
-  const [visible, setVisible] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    if (!inView) return
-    let i = 0
-    const tick = () => {
-      i++
-      setVisible(i)
-      if (i < count) timerRef.current = setTimeout(tick, delay)
-    }
-    timerRef.current = setTimeout(tick, 400)
-    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
-  }, [inView, count, delay])
-
-  return visible
-}
-
-// ── Code card ─────────────────────────────────────────────────────────────────
-function CodeCard({ inView }: { inView: boolean }) {
-  const visible = useLineReveal(CODE_LINES.length, inView, 180)
+// ── Orbiting skill chip ───────────────────────────────────────────────────────
+function OrbitChip({
+  label,
+  color,
+  radius,
+  startAngle: angle,  duration,
+  size = 28,
+  delay = 0,
+}: {
+  label: string
+  color: string
+  radius: number
+  angle: number
+  duration: number
+  size?: number
+  delay?: number
+}) {
   return (
-    <div
-      className="rounded-xl overflow-hidden text-xs font-mono"
-      style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)' }}
+    <motion.div
+      className="absolute flex items-center justify-center"
+      style={{
+        width: 0,
+        height: 0,
+        top: '50%',
+        left: '50%',
+      }}
+      animate={{ rotate: 360 }}
+      transition={{ duration, repeat: Infinity, ease: 'linear', delay }}
     >
-      {/* window chrome */}
-      <div className="flex items-center gap-1.5 px-4 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#161b22' }}>
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#ff5f56' }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#febc2e' }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#27c93f' }} />
-        <span className="ml-3 text-xs opacity-40" style={{ color: '#94a3b8' }}>secure-server.ts</span>
-        <span className="ml-auto flex items-center gap-1 text-xs" style={{ color: '#34d399', opacity: 0.7 }}>
-          <Code2 size={11} /> TypeScript
-        </span>
-      </div>
-      {/* lines */}
-      <div className="px-4 py-3 space-y-0.5" style={{ lineHeight: 1.7 }}>
-        {CODE_LINES.map((line, i) => (
-          <div
-            key={i}
-            className="flex"
-            style={{
-              opacity: i < visible ? 1 : 0,
-              transform: i < visible ? 'translateX(0)' : 'translateX(-4px)',
-              transition: 'opacity 0.2s ease, transform 0.2s ease',
-            }}
-          >
-            <span className="select-none mr-4 text-right" style={{ color: 'rgba(148,163,184,0.25)', minWidth: '1.5ch' }}>{i + 1}</span>
-            {line.token && (
-              <span style={{ color: line.color, marginRight: '0px' }}>{line.token}</span>
-            )}
-            <span style={{ color: '#e2e8f0' }}>{line.rest}</span>
-          </div>
-        ))}
-        {/* blinking cursor */}
-        {visible >= CODE_LINES.length && (
-          <motion.div
-            animate={{ opacity: [1, 0, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-            className="inline-block w-2 h-3.5 ml-1"
-            style={{ background: '#60a5fa', verticalAlign: 'middle' }}
-          />
-        )}
-      </div>
-    </div>
+      {/* arm */}
+      <motion.div
+        style={{
+          position: 'absolute',
+          transformOrigin: '0 0',
+          transform: `rotate(${angle}deg) translateX(${radius}px)`,
+        }}
+        animate={{ rotate: -360 }}
+        transition={{ duration, repeat: Infinity, ease: 'linear', delay }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: delay + 0.4, duration: 0.4, ease: 'easeOut' }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap"
+          style={{
+            background: color + '18',
+            color,
+            border: `1px solid ${color}40`,
+            backdropFilter: 'blur(8px)',
+            boxShadow: `0 4px 16px ${color}20`,
+            transform: 'translate(-50%, -50%)',
+          }}
+          whileHover={{ scale: 1.12, boxShadow: `0 6px 24px ${color}40` }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+          {label}
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }
 
-// ── Terminal card ─────────────────────────────────────────────────────────────
-function ThreatCard({ inView }: { inView: boolean }) {
-  const visible = useLineReveal(THREAT_LINES.length, inView, 500)
+// ── Floating stat card ────────────────────────────────────────────────────────
+function FloatCard({
+  value,
+  label,
+  color,
+  x,
+  y,
+  delay,
+}: {
+  value: string
+  label: string
+  color: string
+  x: string
+  y: string
+  delay: number
+}) {
   return (
-    <div
-      className="rounded-xl overflow-hidden text-xs font-mono"
-      style={{ background: '#0a0f0d', border: '1px solid rgba(52,211,153,0.15)' }}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ delay, duration: 0.5, ease: 'easeOut' }}
+      className="absolute flex items-center gap-3 px-4 py-3 rounded-xl"
+      style={{
+        left: x,
+        top: y,
+        background: 'var(--surface)',
+        border: `1px solid ${color}30`,
+        boxShadow: `0 8px 32px ${color}15`,
+        backdropFilter: 'blur(12px)',
+        zIndex: 10,
+        minWidth: '130px',
+      }}
     >
       <div
-        className="flex items-center gap-2 px-4 py-2.5"
-        style={{ borderBottom: '1px solid rgba(52,211,153,0.08)', background: '#0d1410' }}
+        className="w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center"
+        style={{ background: color + '18' }}
       >
-        <Terminal size={12} style={{ color: '#34d399' }} />
-        <span style={{ color: '#34d399', opacity: 0.8 }}>threat-monitor</span>
-        <span className="ml-auto flex items-center gap-1" style={{ color: '#34d399', opacity: 0.5 }}>
-          <motion.span
-            animate={{ opacity: [1, 0.2, 1] }}
-            transition={{ duration: 1.4, repeat: Infinity }}
-            className="w-1.5 h-1.5 rounded-full inline-block"
-            style={{ background: '#34d399' }}
+        <span className="text-lg font-black" style={{ color, letterSpacing: '-0.04em' }}>{value}</span>
+      </div>
+      <span className="text-xs font-medium leading-tight" style={{ color: 'var(--text-muted)' }}>
+        {label}
+      </span>
+    </motion.div>
+  )
+}
+
+// ── Visual panel ──────────────────────────────────────────────────────────────
+function HeroVisual({ profile, mounted }: { profile: Profile | null; mounted: boolean }) {
+  if (!mounted) return null
+
+  const ORBIT_1 = [
+    { label: 'React.js',    color: '#61dafb', angle: 0,   duration: 18, delay: 0 },
+    { label: 'TypeScript',  color: '#3178c6', angle: 120, duration: 18, delay: 0 },
+    { label: 'Node.js',     color: '#539e43', angle: 240, duration: 18, delay: 0 },
+  ]
+  const ORBIT_2 = [
+    { label: 'Security',    color: '#ef4444', angle: 60,  duration: 26, delay: 0.3 },
+    { label: 'Docker',      color: '#2496ed', angle: 150, duration: 26, delay: 0.3 },
+    { label: 'AWS',         color: '#ff9900', angle: 240, duration: 26, delay: 0.3 },
+    { label: 'PostgreSQL',  color: '#336791', angle: 330, duration: 26, delay: 0.3 },
+  ]
+
+  return (
+    <div className="relative flex items-center justify-center" style={{ height: '480px' }}>
+
+      {/* Faint orbit rings */}
+      {[140, 210].map((r, i) => (
+        <div
+          key={r}
+          className="absolute rounded-full pointer-events-none"
+          aria-hidden="true"
+          style={{
+            width: r * 2, height: r * 2,
+            border: `1px dashed var(--border)`,
+            opacity: i === 0 ? 0.5 : 0.3,
+          }}
+        />
+      ))}
+
+      {/* Outer glow */}
+      <div
+        className="absolute rounded-full pointer-events-none"
+        aria-hidden="true"
+        style={{
+          width: 300, height: 300,
+          background: 'radial-gradient(circle, var(--glow) 0%, transparent 70%)',
+          filter: 'blur(32px)',
+        }}
+      />
+
+      {/* Inner orbit chips */}
+      {ORBIT_1.map(o => (
+        <OrbitChip key={o.label} {...o} radius={140} size={28} />
+      ))}
+
+      {/* Outer orbit chips */}
+      {ORBIT_2.map(o => (
+        <OrbitChip key={o.label} {...o} radius={210} size={26} />
+      ))}
+
+      {/* Center avatar */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="relative z-10 flex items-center justify-center"
+        style={{
+          width: 130, height: 130,
+          borderRadius: '50%',
+          background: 'var(--surface)',
+          border: '3px solid var(--primary)',
+          boxShadow: '0 0 48px var(--glow)',
+          overflow: 'hidden',
+        }}
+      >
+        {profile?.aboutImage ? (
+          <img
+            src={profile.aboutImage}
+            alt="Eyobed Elias"
+            className="w-full h-full object-cover"
           />
-          live
-        </span>
-      </div>
-      <div className="px-4 py-3 space-y-1">
-        {THREAT_LINES.map((line, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-2.5"
-            style={{
-              opacity: i < visible ? 1 : 0,
-              transform: i < visible ? 'translateX(0)' : 'translateX(-4px)',
-              transition: 'opacity 0.25s ease, transform 0.25s ease',
-            }}
-          >
-            <span
-              className="flex-shrink-0 px-1.5 py-0.5 rounded text-xs font-bold leading-none"
-              style={{
-                background: line.color + '22',
-                color: line.color,
-                fontSize: '0.6rem',
-                letterSpacing: '0.05em',
-                minWidth: '2.8rem',
-                textAlign: 'center',
-              }}
-            >
-              {line.label}
-            </span>
-            <span style={{ color: '#94a3b8' }}>{line.msg}</span>
-          </div>
-        ))}
-        {visible >= THREAT_LINES.length && (
-          <div className="flex items-center gap-1 mt-1" style={{ color: '#34d399' }}>
-            <span>$</span>
-            <motion.span
-              animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.8, repeat: Infinity }}
-            >▋</motion.span>
-          </div>
+        ) : (
+          <LogoMark size={56} />
         )}
-      </div>
+      </motion.div>
+
+      {/* Pulsing ring around avatar */}
+      <motion.div
+        className="absolute rounded-full pointer-events-none"
+        aria-hidden="true"
+        style={{ width: 150, height: 150, border: '1px solid var(--primary)', borderRadius: '50%' }}
+        animate={{ scale: [1, 1.18, 1], opacity: [0.6, 0, 0.6] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute rounded-full pointer-events-none"
+        aria-hidden="true"
+        style={{ width: 150, height: 150, border: '1px solid var(--secondary)', borderRadius: '50%' }}
+        animate={{ scale: [1, 1.32, 1], opacity: [0.4, 0, 0.4] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+      />
+
+      {/* Floating stat cards */}
+      <FloatCard value="4+"  label="Years Experience" color="#3b82f6" x="-20px"   y="20px"  delay={0.8} />
+      <FloatCard value="15+" label="Projects Shipped"  color="#10b981" x="55%"    y="10px"  delay={1.0} />
+      <FloatCard value="3"   label="Active Roles"      color="#8b5cf6" x="10%"    y="78%"   delay={1.2} />
+
+      {/* Status badge */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.4 }}
+        className="absolute flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-medium"
+        style={{
+          right: '0px', bottom: '10%',
+          background: 'rgba(16,185,129,0.12)',
+          border: '1px solid rgba(16,185,129,0.3)',
+          color: '#10b981',
+        }}
+      >
+        <motion.span
+          animate={{ opacity: [1, 0.3, 1] }}
+          transition={{ duration: 1.6, repeat: Infinity }}
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ background: '#10b981', display: 'inline-block' }}
+        />
+        Available
+      </motion.div>
     </div>
   )
 }
@@ -192,9 +265,9 @@ export default function Hero({ profile }: Props) {
   }
 
   const socialLinks = [
-    { href: profile?.github   || 'https://github.com/eyobed101',              icon: <GithubIcon size={17} />,   label: 'GitHub'   },
-    { href: profile?.linkedin || 'https://linkedin.com/in/eyobed-e-61b39b194',icon: <LinkedinIcon size={17} />, label: 'LinkedIn' },
-    { href: `mailto:${profile?.email || 'eyobedeliast@gmail.com'}`,           icon: <Mail size={17} />,         label: 'Email'    },
+    { href: profile?.github   || 'https://github.com/eyobed101',               icon: <GithubIcon size={17} />,   label: 'GitHub'   },
+    { href: profile?.linkedin || 'https://linkedin.com/in/eyobed-e-61b39b194', icon: <LinkedinIcon size={17} />, label: 'LinkedIn' },
+    { href: `mailto:${profile?.email || 'eyobedeliast@gmail.com'}`,            icon: <Mail size={17} />,         label: 'Email'    },
   ]
 
   return (
@@ -203,7 +276,7 @@ export default function Hero({ profile }: Props) {
       className="relative min-h-screen flex flex-col justify-center overflow-hidden"
       aria-label="Hero section"
     >
-      {/* ── Static background: dot grid ── */}
+      {/* dot grid background */}
       <div
         className="absolute inset-0 pointer-events-none"
         aria-hidden="true"
@@ -214,41 +287,20 @@ export default function Hero({ profile }: Props) {
         }}
       />
 
-      {/* ── Anchored glow orbs (static, no movement) ── */}
-      <div
-        aria-hidden="true"
-        className="absolute pointer-events-none"
-        style={{
-          top: '15%', left: '5%',
-          width: '480px', height: '480px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 65%)',
-          filter: 'blur(48px)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute pointer-events-none"
-        style={{
-          bottom: '10%', right: '8%',
-          width: '380px', height: '380px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 65%)',
-          filter: 'blur(48px)',
-        }}
-      />
+      {/* glow orbs */}
+      <div aria-hidden="true" className="absolute pointer-events-none" style={{ top: '15%', left: '5%', width: '480px', height: '480px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 65%)', filter: 'blur(48px)' }} />
+      <div aria-hidden="true" className="absolute pointer-events-none" style={{ bottom: '10%', right: '8%', width: '380px', height: '380px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 65%)', filter: 'blur(48px)' }} />
 
       <div className="container relative z-10 pt-24 md:pt-28 pb-16">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
-          {/* ── Left: text content ── */}
+          {/* ── Left: text ── */}
           <motion.div
             variants={stagger}
             initial="hidden"
             animate={mounted ? 'visible' : 'hidden'}
             className="flex flex-col"
           >
-            {/* eyebrow */}
             <motion.div variants={item} className="flex items-center gap-3 mb-5">
               <span
                 className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium"
@@ -259,13 +311,11 @@ export default function Hero({ profile }: Props) {
               </span>
             </motion.div>
 
-            {/* name */}
             <motion.h1 variants={item} className="font-extrabold leading-none mb-4"
               style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', color: 'var(--text)', letterSpacing: '-0.03em' }}>
               {profile?.name || 'Eyobed Elias'}
             </motion.h1>
 
-            {/* cycling role */}
             <motion.div variants={item} className="mb-5 h-9 overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.p
@@ -282,59 +332,35 @@ export default function Hero({ profile }: Props) {
               </AnimatePresence>
             </motion.div>
 
-            {/* description */}
-            <motion.p variants={item}
-              className="text-base leading-relaxed mb-7 max-w-lg"
-              style={{ color: 'var(--text-muted)' }}
-            >
+            <motion.p variants={item} className="text-base leading-relaxed mb-7 max-w-lg" style={{ color: 'var(--text-muted)' }}>
               {profile?.description || "Building secure, scalable systems across multiple platforms. Leading technical innovation at Tripways while contributing to national cybersecurity at INSA."}
             </motion.p>
 
-            {/* dual identity badges */}
             <motion.div variants={item} className="flex flex-wrap gap-2.5 mb-8">
               {[
                 { icon: <Code2 size={13} />,  label: 'Full Stack Dev',    color: '#3b82f6' },
                 { icon: <Shield size={13} />, label: 'Security Engineer', color: '#10b981' },
                 { icon: <Lock size={13} />,   label: 'Threat Hunter',     color: '#f59e0b' },
               ].map(({ icon, label, color }) => (
-                <span
-                  key={label}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
-                  style={{
-                    background: color + '12',
-                    color,
-                    border: `1px solid ${color}30`,
-                  }}
-                >
+                <span key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
+                  style={{ background: color + '12', color, border: `1px solid ${color}30` }}>
                   {icon} {label}
                 </span>
               ))}
             </motion.div>
 
-            {/* CTAs */}
             <motion.div variants={item} className="flex flex-wrap gap-3 mb-9">
-              <a
-                href="#work"
-                onClick={e => { e.preventDefault(); document.querySelector('#work')?.scrollIntoView({ behavior: 'smooth' }) }}
-                className="btn-primary"
-              >
+              <a href="#work" onClick={e => { e.preventDefault(); document.querySelector('#work')?.scrollIntoView({ behavior: 'smooth' }) }} className="btn-primary">
                 View My Work <ExternalLink size={15} />
               </a>
-              <a
-                href="#contact"
-                onClick={e => { e.preventDefault(); document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' }) }}
-                className="btn-outline"
-              >
+              <a href="#contact" onClick={e => { e.preventDefault(); document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' }) }} className="btn-outline">
                 Get In Touch
               </a>
             </motion.div>
 
-            {/* socials */}
             <motion.div variants={item} className="flex items-center gap-3">
               {socialLinks.map(({ href, icon, label }) => (
-                <a
-                  key={label}
-                  href={href}
+                <a key={label} href={href}
                   target={href.startsWith('mailto') ? undefined : '_blank'}
                   rel="noopener noreferrer"
                   aria-label={label}
@@ -347,77 +373,29 @@ export default function Hero({ profile }: Props) {
                 </a>
               ))}
               <div className="w-px h-5 mx-1" style={{ background: 'var(--border)' }} />
-              <a
-                href="https://endpoint.eyobedelias.net.et/uploads/1777320343874-114031482.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-medium hover-underline transition-colors duration-150"
-                style={{ color: 'var(--text-muted)' }}
-              >
+              <a href="https://endpoint.eyobedelias.net.et/uploads/1777320343874-114031482.pdf"
+                target="_blank" rel="noopener noreferrer"
+                className="text-xs font-medium hover-underline"
+                style={{ color: 'var(--text-muted)' }}>
                 Resume ↗
               </a>
             </motion.div>
           </motion.div>
 
-          {/* ── Right: visual identity ── */}
+          {/* ── Right: orbit visual ── */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={mounted ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
-            className="flex flex-col gap-4 lg:pl-4"
+            initial={{ opacity: 0 }}
+            animate={mounted ? { opacity: 1 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="hidden lg:flex items-center justify-center"
           >
-            {/* avatar + name card */}
-            <div
-              className="flex items-center gap-4 p-4 rounded-2xl"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
-            >
-              {/* avatar */}
-              <div
-                className="relative w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden"
-                style={{ border: '2px solid var(--primary)', boxShadow: '0 0 20px var(--glow)' }}
-              >
-                {profile?.aboutImage ? (
-                  <img src={profile.aboutImage} alt="Eyobed Elias" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--surface-2)' }}>
-                    <LogoMark size={32} />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold truncate" style={{ color: 'var(--text)' }}>{profile?.name || 'Eyobed Elias'}</p>
-                <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>CTO · Software Dev · Security Researcher</p>
-              </div>
-              <div className="flex flex-col items-end gap-1.5">
-                <span className="flex items-center gap-1.5 text-xs font-mono" style={{ color: '#34d399' }}>
-                  <motion.span
-                    animate={{ opacity: [1, 0.3, 1] }}
-                    transition={{ duration: 1.8, repeat: Infinity }}
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: '#34d399', display: 'inline-block' }}
-                  />
-                  Active
-                </span>
-                <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>AAA+</span>
-              </div>
-            </div>
-
-            {/* code snippet */}
-            <CodeCard inView={mounted} />
-
-            {/* terminal */}
-            <ThreatCard inView={mounted} />
+            <HeroVisual profile={profile} mounted={mounted} />
           </motion.div>
         </div>
 
         {/* scroll cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="flex flex-col items-center gap-1.5 mt-14"
-          aria-hidden="true"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}
+          className="flex flex-col items-center gap-1.5 mt-14" aria-hidden="true">
           <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.8, repeat: Infinity }}>
             <ArrowDown size={17} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
           </motion.div>
