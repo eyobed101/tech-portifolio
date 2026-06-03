@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
 import Navbar from './components/Navbar'
@@ -9,12 +9,12 @@ import Work from './components/Work'
 import Blog from './components/Blog'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import Loader from './components/Loader'
 import PostDetail from './pages/PostDetail'
 import AllProjects from './pages/AllProjects'
 import { fetchProfile, fetchJobs, fetchProjects, fetchFeatured, fetchPosts } from './lib/api'
 import type { Profile, Job, Project, FeaturedProject, Post } from './types'
 
-// Shared data state — lifted so projects page can reuse it
 function usePortfolioData() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])
@@ -66,15 +66,30 @@ function ProjectsPage() {
 }
 
 export default function App() {
+  const [loaded, setLoaded] = useState(false)
+  const handleDone = useCallback(() => setLoaded(true), [])
+
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <Routes>
-          <Route path="/" element={<PortfolioHome />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/blog/:slug" element={<PostDetail />} />
-          <Route path="*" element={<PortfolioHome />} />
-        </Routes>
+        {/* Loader sits above everything; only shown once per session */}
+        {!loaded && <Loader onDone={handleDone} />}
+
+        {/* Content renders underneath — visible once loader fades out */}
+        <div
+          style={{
+            opacity: loaded ? 1 : 0,
+            transition: 'opacity 0.4s ease',
+            pointerEvents: loaded ? 'auto' : 'none',
+          }}
+        >
+          <Routes>
+            <Route path="/" element={<PortfolioHome />} />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/blog/:slug" element={<PostDetail />} />
+            <Route path="*" element={<PortfolioHome />} />
+          </Routes>
+        </div>
       </ThemeProvider>
     </BrowserRouter>
   )
