@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowDown, Mail, Code2, ExternalLink, Lock, Shield } from 'lucide-react'
+import { Mail, Code2, ExternalLink, Lock, Shield } from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from './SocialIcons'
 import LogoMark from './LogoMark'
 import type { Profile } from '../types'
@@ -314,14 +314,7 @@ export default function Hero({ profile }: Props) {
           </motion.div>
         </div>
 
-        {/* scroll cue */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}
-          className="flex flex-col items-center gap-1.5 mt-14" aria-hidden="true">
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.8, repeat: Infinity }}>
-            <ArrowDown size={17} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
-          </motion.div>
-          <span className="font-mono text-xs" style={{ color: 'var(--text-muted)', opacity: 0.4 }}>scroll</span>
-        </motion.div>
+        {/* removed scroll indicator */}
       </div>
     </section>
   )
