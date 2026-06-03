@@ -538,3 +538,13 @@ body {
 #about .flex-wrap {
   justify-content: flex-start !important;
 }
+
+/* ── About stats cards — always left-aligned on all screens ── */
+#about .flex.items-center.gap-4 {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+#about .flex.items-center.gap-4 p,
+#about .flex.items-center.gap-4 span {
+  text-align: left !important;
+}
