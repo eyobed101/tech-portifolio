@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { ArrowLeft, Search, Sun, Moon, Shield } from 'lucide-react'
+import { ArrowLeft, Search, Sun, Moon } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { parseTech } from '../lib/api'
+import LogoMark from '../components/LogoMark'
 import { ProjectCard, FALLBACK_PROJECTS, PROJECT_TAGS, CAT_COLOR, CATEGORIES } from '../components/Work'
 import type { Project } from '../types'
 import type { CatKey } from '../components/Work'
@@ -62,8 +63,8 @@ export default function AllProjects({ projects }: Props) {
         </button>
 
         <a href="/" className="flex items-center gap-2" aria-label="Home">
-          <span className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'var(--primary)' }}>
-            <Shield size={14} color="#fff" />
+          <span className="transition-all duration-200 hover:scale-110">
+            <LogoMark size={28} />
           </span>
           <span className="font-bold text-sm hidden sm:block" style={{ color: 'var(--text)' }}>
             Eyobed<span style={{ color: 'var(--primary)' }}>.</span>

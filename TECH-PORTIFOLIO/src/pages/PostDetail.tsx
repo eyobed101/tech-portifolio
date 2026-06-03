@@ -8,6 +8,7 @@ import { Sun, Moon } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
 import { Shield } from 'lucide-react'
 import { FALLBACK_POSTS } from '../components/Blog'
+import LogoMark from '../components/LogoMark'
 import type { Post } from '../types'
 
 // Very lightweight markdown renderer — handles headings, code blocks, inline code, bold, lists
