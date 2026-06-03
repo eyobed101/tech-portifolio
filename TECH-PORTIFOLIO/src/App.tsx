@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -8,6 +9,7 @@ import Work from './components/Work'
 import Blog from './components/Blog'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import PostDetail from './pages/PostDetail'
 import { fetchProfile, fetchJobs, fetchProjects, fetchFeatured, fetchPosts } from './lib/api'
 import type { Profile, Job, Project, FeaturedProject, Post } from './types'
 
@@ -19,7 +21,6 @@ function PortfolioApp() {
   const [posts, setPosts] = useState<Post[]>([])
 
   useEffect(() => {
-    // Fetch all data in parallel; silently fall back to static data on error
     Promise.allSettled([
       fetchProfile().then(setProfile),
       fetchJobs().then(setJobs),
@@ -37,9 +38,7 @@ function PortfolioApp() {
       >
         Skip to main content
       </a>
-
       <Navbar />
-
       <main id="main-content">
         <Hero profile={profile} />
         <About profile={profile} />
@@ -48,7 +47,6 @@ function PortfolioApp() {
         <Blog posts={posts} />
         <Contact profile={profile} />
       </main>
-
       <Footer profile={profile} />
     </div>
   )
@@ -56,8 +54,15 @@ function PortfolioApp() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <PortfolioApp />
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <Routes>
+          <Route path="/" element={<PortfolioApp />} />
+          <Route path="/blog/:slug" element={<PostDetail />} />
+          {/* Catch-all back to home */}
+          <Route path="*" element={<PortfolioApp />} />
+        </Routes>
+      </ThemeProvider>
+    </BrowserRouter>
   )
 }
