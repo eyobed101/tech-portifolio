@@ -43,7 +43,7 @@ function useRoleCycle() {
   return ROLES[idx]
 }
 
-function useLineReveal(lines: typeof CODE_LINES, inView: boolean, delay = 600) {
+function useLineReveal(count: number, inView: boolean, delay = 600) {
   const [visible, setVisible] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -53,18 +53,18 @@ function useLineReveal(lines: typeof CODE_LINES, inView: boolean, delay = 600) {
     const tick = () => {
       i++
       setVisible(i)
-      if (i < lines.length) timerRef.current = setTimeout(tick, delay)
+      if (i < count) timerRef.current = setTimeout(tick, delay)
     }
     timerRef.current = setTimeout(tick, 400)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
-  }, [inView, lines.length, delay])
+  }, [inView, count, delay])
 
   return visible
 }
 
 // ── Code card ─────────────────────────────────────────────────────────────────
 function CodeCard({ inView }: { inView: boolean }) {
-  const visible = useLineReveal(CODE_LINES, inView, 180)
+  const visible = useLineReveal(CODE_LINES.length, inView, 180)
   return (
     <div
       className="rounded-xl overflow-hidden text-xs font-mono"
@@ -115,7 +115,7 @@ function CodeCard({ inView }: { inView: boolean }) {
 
 // ── Terminal card ─────────────────────────────────────────────────────────────
 function ThreatCard({ inView }: { inView: boolean }) {
-  const visible = useLineReveal(THREAT_LINES, inView, 500)
+  const visible = useLineReveal(THREAT_LINES.length, inView, 500)
   return (
     <div
       className="rounded-xl overflow-hidden text-xs font-mono"
