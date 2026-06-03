@@ -365,3 +365,110 @@ body {
     display: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE CENTERING — everything ≤ 767px
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* ── Section headings ── */
+  .section-heading {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  .section-heading .line {
+    display: none;
+  }
+
+  /* ── Generic text inside sections ── */
+  section p,
+  section h1,
+  section h2,
+  section h3,
+  section h4 {
+    text-align: center;
+  }
+
+  /* ── Flex rows that should stack + center ── */
+  section .flex {
+    justify-content: center;
+  }
+
+  /* ── Hero left column ── */
+  #hero .flex {
+    justify-content: center;
+  }
+  #hero h1,
+  #hero h2,
+  #hero p {
+    text-align: center;
+  }
+  #hero [class*='mb-5'],
+  #hero [class*='mb-7'],
+  #hero [class*='mb-8'],
+  #hero [class*='mb-9'] {
+    align-items: center;
+  }
+
+  /* ── About bio drop-cap paragraph ── */
+  #about p {
+    text-align: left;
+  }
+  #about p span[style*='float'] {
+    float: none;
+    display: block;
+    text-align: center;
+    margin: 0 auto 0.25rem;
+  }
+
+  /* ── About stats row ── */
+  #about .grid {
+    text-align: left;
+  }
+
+  /* ── Skills panel category tabs ── */
+  #about [role='tablist'] {
+    justify-content: center;
+  }
+
+  /* ── Experience tab list ── */
+  #experience [role='tablist'] {
+    justify-content: center;
+  }
+
+  /* ── Work section sub-heading ── */
+  #work h3 {
+    text-align: center;
+  }
+  #work [role='group'] {
+    justify-content: center;
+  }
+
+  /* ── Blog section controls ── */
+  #blog [role='group'] {
+    justify-content: center;
+  }
+
+  /* ── Contact heading ── */
+  #contact h3 {
+    text-align: center;
+  }
+  #contact > .container > .max-w-2xl {
+    text-align: center;
+  }
+
+  /* ── Buttons and CTA groups ── */
+  .btn-primary,
+  .btn-outline {
+    justify-content: center;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+  }
+  footer .flex {
+    justify-content: center;
+  }
+}
