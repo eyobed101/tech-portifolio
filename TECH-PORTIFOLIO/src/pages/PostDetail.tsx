@@ -6,9 +6,8 @@ import { fetchPost, parseTags, readingTime } from '../lib/api'
 import { useTheme } from '../context/ThemeContext'
 import { Sun, Moon } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
-import { Shield } from 'lucide-react'
-import { FALLBACK_POSTS } from '../components/Blog'
 import LogoMark from '../components/LogoMark'
+import { FALLBACK_POSTS } from '../components/Blog'
 import type { Post } from '../types'
 
 // Very lightweight markdown renderer — handles headings, code blocks, inline code, bold, lists
@@ -115,11 +114,8 @@ export default function PostDetail() {
           className="flex items-center gap-2"
           aria-label="Home"
         >
-          <span
-            className="w-7 h-7 rounded-md flex items-center justify-center"
-            style={{ background: 'var(--primary)' }}
-          >
-            <Shield size={14} color="#fff" />
+          <span className="transition-all duration-200 hover:scale-110">
+            <LogoMark size={28} />
           </span>
           <span className="font-bold text-sm hidden sm:block" style={{ color: 'var(--text)' }}>
             Eyobed<span style={{ color: 'var(--primary)' }}>.</span>

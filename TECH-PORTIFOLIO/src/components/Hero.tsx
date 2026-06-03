@@ -265,7 +265,7 @@ export default function Hero({ profile }: Props) {
             transition={{ duration: 0.65, delay: 0.35, ease: 'easeOut' }}
             className="hidden lg:flex items-center justify-center"
           >
-            <AvatarOrbit profile={profile} size={280} mounted={mounted} />
+            <AvatarOrbit profile={profile} size={360} mounted={mounted} />
           </motion.div>
         </div>
 
