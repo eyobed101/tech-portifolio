@@ -533,3 +533,8 @@ body {
     width: 100%;
   }
 }
+
+/* ── Skills grid tags — always left-aligned regardless of mobile centering ── */
+#about .flex-wrap {
+  justify-content: flex-start !important;
+}
