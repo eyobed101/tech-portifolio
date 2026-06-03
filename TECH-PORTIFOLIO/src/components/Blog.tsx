@@ -95,17 +95,24 @@ function BlogCard({
 }) {
   const tags = parseTags(post.tags)
   const mins = readingTime(post.content)
-  // Strip all markdown syntax to get clean plain text for the preview
+  // Strip HTML tags and markdown to produce clean plain-text preview
   const plainContent = post.content
-    .replace(/```[\s\S]*?```/g, '')          // remove fenced code blocks entirely
-    .replace(/`[^`]+`/g, '')                  // remove inline code
-    .replace(/^#{1,6}\s+/gm, '')              // remove heading markers
-    .replace(/^\s*[-*>]\s+/gm, '')            // remove list/blockquote markers
-    .replace(/\*\*(.+?)\*\*/g, '$1')          // unwrap bold
-    .replace(/\*(.+?)\*/g, '$1')              // unwrap italic
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // unwrap links
-    .replace(/\n+/g, ' ')                     // collapse newlines to spaces
-    .replace(/\s{2,}/g, ' ')                  // collapse extra spaces
+    .replace(/<style[\s\S]*?<\/style>/gi, '')   // remove style blocks
+    .replace(/<script[\s\S]*?<\/script>/gi, '') // remove script blocks
+    .replace(/<[^>]+>/g, ' ')                   // strip all HTML tags
+    .replace(/&nbsp;/g, ' ')                    // decode common entities
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#\d+;/g, '')                     // strip numeric entities
+    .replace(/```[\s\S]*?```/g, '')             // remove fenced code blocks
+    .replace(/`[^`]+`/g, '')                    // remove inline code
+    .replace(/^#{1,6}\s+/gm, '')               // remove heading markers
+    .replace(/^\s*[-*>]\s+/gm, '')             // remove list/blockquote markers
+    .replace(/\*\*(.+?)\*\*/g, '$1')           // unwrap bold
+    .replace(/\*(.+?)\*/g, '$1')               // unwrap italic
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')  // unwrap links
+    .replace(/\s+/g, ' ')                       // collapse all whitespace
     .trim()
   const excerpt = post.description || (plainContent.slice(0, 115) + (plainContent.length > 115 ? '…' : ''))
   const primaryTag = tags[0]
